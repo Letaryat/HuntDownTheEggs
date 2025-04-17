@@ -48,7 +48,8 @@ public partial class HuntDownTheEggs : BasePlugin, IPluginConfig<PresentsConfig>
             GenerateFile();
             SerializeJsonFromMap();
             _ = GetTop(map);
-            Logger.LogInformation($"OnMapStart: ${mapName}");
+            DebugMode($"On map start: {mapName}");
+
         });
         RegisterListener<Listeners.OnServerPrecacheResources>((manifest) =>
         {
@@ -61,11 +62,11 @@ public partial class HuntDownTheEggs : BasePlugin, IPluginConfig<PresentsConfig>
         AddCommandListener("ds_workshop_changelevel", ListenerChangeLevel, HookMode.Pre);
         HookEntityOutput("trigger_multiple", "OnStartTouch", trigger_multiple, HookMode.Pre);
 
-        Logger.LogInformation($"CS2-KillPresents has been loaded! - FilePath: {filePath}");
+        Logger.LogInformation($"HuntDownTheEggs has been loaded! - FilePath: {filePath}");
     }
     public override void Unload(bool hotReload)
     {
-        Logger.LogInformation("CS2-KillPresents has been unloaded!");
+        Logger.LogInformation("HuntDownTheEggs has been unloaded!");
         _ = SaveAllEggs();
     }
     public void OnConfigParsed(PresentsConfig config)
@@ -76,10 +77,7 @@ public partial class HuntDownTheEggs : BasePlugin, IPluginConfig<PresentsConfig>
 
     public async Task OnClientAuthorizedAsync(ulong steamid)
     {
-        if (Config.Debug == true)
-        {
-            Logger.LogInformation("Client authorization");
-        }
+        DebugMode($"Client authorization: {steamid}");
         var user = await GetPlayerEggs(steamid, mapName!);
         if (user == null)
         {

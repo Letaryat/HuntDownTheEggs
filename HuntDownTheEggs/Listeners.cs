@@ -9,10 +9,7 @@ namespace HuntDownTheEggs
     {
         public HookResult ListenerChangeLevel(CCSPlayerController? player, CommandInfo info)
         {
-            if (Config.Debug == true)
-            {
-                Logger.LogInformation("ListenerChangeLevel - Clearing cache");
-            }
+            DebugMode("Changing map. Clearing cache!");
             
 
             Presents.Clear();

@@ -12,10 +12,8 @@ namespace HuntDownTheEggs
     {
         public void GenerateFile()
         {
-            if (Config.SearchMode == false) {
-                Logger.LogInformation("Search mode is turned off! No need to create map file!");
-                return; 
-            }
+            DebugMode("Search mode is turned off! No need to create map file!");
+
             string path = Path.Combine(ModuleDirectory, "maps");
             mapName ??= Server.MapName;
             string file = Path.Combine(path, $"{mapName}.json");
@@ -24,13 +22,13 @@ namespace HuntDownTheEggs
             {
                 if (!Directory.Exists(path))
                 {
-                    Logger.LogInformation("Folder 'maps' not found! Creating one!");
+                    DebugMode("Folder 'maps' not found! Creating one!");
                     Directory.CreateDirectory(path);
                 }
 
                 if (!File.Exists(file))
                 {
-                    Logger.LogInformation("Map file not found! Creating one!");
+                    DebugMode("File does not exist! Creating one!");
                     File.WriteAllText(file, "[]");
                 }
             }
@@ -142,11 +140,7 @@ namespace HuntDownTheEggs
 
         public void SerializeJsonFromMap()
         {
-            if (Config.SearchMode == false)
-            {
-                Logger.LogInformation("Search mode is turned off! No need to create map file!");
-                return;
-            }
+            DebugMode("Search mode is turned off! No need to create map file!");
             if (File.Exists(filePath))
             {
                 string json = File.ReadAllText(filePath);
@@ -158,15 +152,11 @@ namespace HuntDownTheEggs
         }
         public void WritePresentCords(CCSPlayerController controller, string modelColor)
         {
-            if (Config.SearchMode == false)
-            {
-                Logger.LogInformation("Search mode is turned off! No need to create map file!");
-                return;
-            }
+            DebugMode("Search mode is turned off! No need to create map file!");
             if (controller?.PlayerPawn?.Value == null) return;
             if (filePath == null)
             {
-                Logger.LogInformation("filePath variable is empty!");
+                DebugMode("filePath variable is empty!");
                 return;
             }
 
@@ -194,10 +184,7 @@ namespace HuntDownTheEggs
                 File.WriteAllText(filePath, JsonSerializer.Serialize(presents, options));
 
                 SerializeJsonFromMap();
-                if (Config.Debug == true)
-                {
-                Logger.LogInformation($"Saved present with ID: {newId} = {pos}");
-                }
+                DebugMode($"Saved present with ID: {newId} = {pos}\"");
                     
                 return;
             }
@@ -216,10 +203,7 @@ namespace HuntDownTheEggs
             }
 
             Presents.Clear();
-            if (Config.Debug == true)
-            {
-            Logger.LogInformation($"RemovePresents - Removed all presents from map");
-            }
+            DebugMode("RemovePresents - Removed all presents from map");
                 
 
         }
@@ -235,14 +219,14 @@ namespace HuntDownTheEggs
                         var steamid = controller.SteamID;
                         if (steamid == 0)
                         {
-                            Logger.LogInformation("Player with no steamID");
+                            DebugMode("Player with wrong steamid!");
                             return;
                         }
 
                         string[] parts = eggName.Split("$");
                         if (parts.Length < 2)
                         {
-                            Logger.LogInformation($"Something wrong with EggName {eggName}");
+                            DebugMode($"Issue with egg: {eggName}");
                             return;
                         }
 
@@ -322,6 +306,15 @@ namespace HuntDownTheEggs
 
             Glow.Teleport(entity.AbsOrigin, entity.AbsRotation, entity.AbsVelocity);
             Glow.AcceptInput("SetParent", entity, Glow, "!activator");
+        }
+
+        private void DebugMode(string input)
+        {
+            if(Config.Debug)
+            {
+                Logger.LogInformation(input);
+            }
+            return;
         }
 
     }
