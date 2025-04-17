@@ -32,7 +32,7 @@ namespace HuntDownTheEggs
             if(controller == null || controller.PlayerPawn.Value == null || !controller.PlayerPawn.IsValid || controller.IsBot || controller.IsHLTV) return;
             var userid = controller.UserId;
             
-            if(Config.ReceivePrize == false)
+            if(Config.ReceivePrize == false || Config.EggsTypes.Count() == 0)
             {
                 controller.PrintToChat($"{Localizer["prefix"]}{Localizer["pickedEggNoPrize"]}");
                 return;
