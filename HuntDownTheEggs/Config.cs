@@ -1,0 +1,26 @@
+﻿using CounterStrikeSharp.API.Core;
+using System.Text.Json.Serialization;
+using static HuntDownTheEggs.HuntDownTheEggs;
+
+
+namespace HuntDownTheEggs
+{
+    public class PresentsConfig : BasePluginConfig
+    {
+        [JsonPropertyName("EggRootFlag")] public string EggRootFlag { get; set; } = "@egg/root";
+        [JsonPropertyName("EggModel")] public string EggModel { get; set; } = "models/chicken/chicken.vmdl";
+        [JsonPropertyName("DBHost")] public string DBHost { get; set; } = "localhost";
+        [JsonPropertyName("DBPort")] public uint DBPort { get; set; } = 3306;
+        [JsonPropertyName("DBUsername")] public string DBUsername { get; set; } = "root";
+        [JsonPropertyName("DBName")] public string DBName { get; set; } = "db_";
+        [JsonPropertyName("DBPassword")] public string DBPassword { get; set; } = "123";
+        [JsonPropertyName("DeathMode")] public bool DeathMode { get; set; } = true;
+        [JsonPropertyName("SpawnDeathEggOnVictim")] public bool SpawnDeathEggOnVictim { get; set; } = true;
+        [JsonPropertyName("ChanceToSpawn")] public float ChanceToSpawn { get; set; } = 100.0f;
+        [JsonPropertyName("RemoveOnFind")] public bool RemoveOnFind { get; set; } = true;
+        [JsonPropertyName("ReceivePrize")] public bool ReceivePrize { get; set; } = true;
+
+        [JsonPropertyName("PresentTypes")]
+        public Dictionary<string, EggsTypeConfig> EggsTypes { get; set; } = new();
+    }
+}

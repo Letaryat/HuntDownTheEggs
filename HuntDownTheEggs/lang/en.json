@@ -1,0 +1,15 @@
+{
+    "prefix": "{lime}[EggHunting] {default}",
+    "welcomeMessage": "{green}************{lightyellow}[EggHunting]{green}************\nThere are {lightyellow}{0} eggs in total on this map!\nTry to find them all!\n Good luck!",
+    "recievedPrize": "You picked up the egg: {0} with rarity: {1} {default}",
+    "pickedEggNoPrize": "You picked up the egg!",
+    "alreadyOwn": "{orange}You already found this egg!!",
+    "killEgg": "{lightyellow}You picked up the kill egg!",
+    "playerNotFound": "{darkred}Player not found!",
+    "myEggs": "{green}************{lightyellow}[EggHunting]{green}************\n{default}Your eggs on map:{lime}{2}!\n{default}You already found: {orange}{0} eggs!\n{default}In total you have: {orange}{1} kill eggs!",
+    "topListHeader": "{green}************{lightyellow}[TOPLIST]{green}************\n{default}",
+    "topKillEggsListHeader": "{green}************{lightyellow}[TOP KILL EGGS]{green}************\n{default}",
+    "topListPlayer": "{lightyellow}{green}{0}. {orange}{1} {green}- {lightyellow}{2}",
+    "noEggsFound": "{red}Nie znaleziono żadnych jajek!",
+    "recievedDesc.Punkty_sklepu": "Example of description of received custom reward in Config"
+}
