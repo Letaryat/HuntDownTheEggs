@@ -24,6 +24,7 @@ namespace HuntDownTheEggs
             public string map {  get; set; }
             public List<int> eggs { get; set; }
             public int killeggs { get; set; }
+            public int totalEggs { get; set; }
         }
         public class EggsTypeConfig
         {

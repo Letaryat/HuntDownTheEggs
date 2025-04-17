@@ -78,10 +78,11 @@ namespace HuntDownTheEggs
                 player.PrintToChat($"{msg}");
             }
 
+            /*
             if (player.AuthorizedSteamID == null)
                 return HookResult.Continue;
-
-            //var steamid64 = player.AuthorizedSteamID.SteamId64;
+            var steamid64 = player.AuthorizedSteamID.SteamId64;
+            */
 
             var steamid64 = player.SteamID;
 
