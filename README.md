@@ -8,7 +8,7 @@ Additionally, server owners can configure the eggs to grant random rewards by ex
 
 ## [📌] Dependiencies
 - [Metamod](https://www.sourcemm.net/)
-- [CounterStrikeSharp (tested on v294)](https://github.com/roflmuffin/CounterStrikeSharp)  
+- [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp)  
 
 ## [📌] Setup
 - Install all dependiencies listed upwards,
@@ -20,10 +20,12 @@ Additionally, server owners can configure the eggs to grant random rewards by ex
 
 If you have any more problems or would like to know more, [please visit wiki.](https://github.com/Letaryat/HuntDownTheEggs/wiki)
 
-## Special thanks to:
+## [💖] Special thanks to:
 - [Exkludera Gift Packages](https://github.com/exkludera/cs2-gift-packages) - Basically yoinked the whole idea of gifts and how to make presents/triggers/hookentityoutput
+- [CS2-Ranks](https://github.com/partiusfabaa/cs2-ranks), [SimpleAdmin](github.com/daffyyyy/CS2-SimpleAdmin) how to manage things such as keeping player information from database,
+- CounterStrikeSharp Discord,
 
-### Model
+### [💥] Model
 Unfortunately, no matter how hard I tried porting model from blender, it always ended up with some issues from my part. Because of that I am not providing any easter egg model since the one that I ported was buggy and large in size. I also did not find any cool model in CS2 files to use. If someone would like to share some kinda model of easter egg, easter egg basket or anything connected with easter, please make an issue on github. In my opinion it would be cool if the egg model was as a challenge_coin. Plugin uses loop animation of challenge coin for egg model when idle and it looks pretty :3. 
 Thanks!
 
