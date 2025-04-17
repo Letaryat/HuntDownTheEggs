@@ -157,7 +157,7 @@ namespace HuntDownTheEggs
                     Id = newId,
                     X = pos!.X,
                     Y = pos.Y,
-                    Z = pos.Z + 20,
+                    Z = pos.Z + Config.EggModelHeight,
                     modelColor = modelColor
                 });
 

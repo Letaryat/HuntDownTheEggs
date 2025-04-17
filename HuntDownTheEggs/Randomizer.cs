@@ -59,7 +59,7 @@ namespace HuntDownTheEggs
             float roll = (float)(rng.NextDouble() * 100);
             if(roll <= chance)
             {
-                Vector position = new Vector(controller.PlayerPawn.Value.AbsOrigin!.X, controller.PlayerPawn.Value.AbsOrigin.Y, controller.PlayerPawn.Value.AbsOrigin.Z + 20);
+                Vector position = new Vector(controller.PlayerPawn.Value.AbsOrigin!.X, controller.PlayerPawn.Value.AbsOrigin.Y, controller.PlayerPawn.Value.AbsOrigin.Z + Config.EggModelHeight);
                 GeneratePresent(position, "default", "$kill");
                 return;
             }

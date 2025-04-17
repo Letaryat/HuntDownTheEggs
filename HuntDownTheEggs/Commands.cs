@@ -28,7 +28,7 @@ namespace HuntDownTheEggs
 
             var presentid = presents.Count();
 
-            GeneratePresent(new Vector(controller.PlayerPawn.Value.AbsOrigin!.X, controller.PlayerPawn.Value.AbsOrigin!.Y, controller.PlayerPawn.Value.AbsOrigin!.Z + 20), arg, $"{mapName}_${presentid}");
+            GeneratePresent(new Vector(controller.PlayerPawn.Value.AbsOrigin!.X, controller.PlayerPawn.Value.AbsOrigin!.Y, controller.PlayerPawn.Value.AbsOrigin!.Z + Config.EggModelHeight), arg, $"{mapName}_${presentid}");
             
             try
             {

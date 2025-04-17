@@ -9,6 +9,7 @@ namespace HuntDownTheEggs
     {
         [JsonPropertyName("EggRootFlag")] public string EggRootFlag { get; set; } = "@egg/root";
         [JsonPropertyName("EggModel")] public string EggModel { get; set; } = "models/chicken/chicken.vmdl";
+        [JsonPropertyName("EggModelHeight")] public float EggModelHeight { get; set; } = 0;
         [JsonPropertyName("DBHost")] public string DBHost { get; set; } = "localhost";
         [JsonPropertyName("DBPort")] public uint DBPort { get; set; } = 3306;
         [JsonPropertyName("DBUsername")] public string DBUsername { get; set; } = "root";
