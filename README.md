@@ -31,4 +31,4 @@ Thanks!
 
 ## [🚨] 
 Plugin is written by me. That means it might be poorly written and have some issues. Sometimes I have no idea what am I doing but when tested it works.
-It was written using a lot of research and also a chatgpt when I was stuck. Any help and / or advice on the code is welcome. Thanks!
+It was written using a lot of research and also a chatgpt when I was stuck. Any help and or advice on the code is welcome. Thanks!
