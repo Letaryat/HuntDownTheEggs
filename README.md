@@ -18,6 +18,8 @@ Additionally, server owners can configure the eggs to grant random rewards by ex
 - Config file should be created in configs/plugins/HuntDownTheEggs,
 - After setting up the database restart your server again
 
+If you have any more problems or would like to know more, [please visit wiki.](https://github.com/Letaryat/HuntDownTheEggs/wiki)
+
 ## Special thanks to:
 - [Exkludera Gift Packages](https://github.com/exkludera/cs2-gift-packages) - Basically yoinked the whole idea of gifts and how to make presents/triggers/hookentityoutput
 
