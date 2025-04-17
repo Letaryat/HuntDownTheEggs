@@ -76,7 +76,10 @@ public partial class HuntDownTheEggs : BasePlugin, IPluginConfig<PresentsConfig>
 
     public async Task OnClientAuthorizedAsync(ulong steamid)
     {
-        Logger.LogInformation("Client authorization");
+        if (Config.Debug == true)
+        {
+            Logger.LogInformation("Client authorization");
+        }
         var user = await GetPlayerEggs(steamid, mapName!);
         if (user == null)
         {

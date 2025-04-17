@@ -12,6 +12,10 @@ namespace HuntDownTheEggs
     {
         public void GenerateFile()
         {
+            if (Config.SearchMode == false) {
+                Logger.LogInformation("Search mode is turned off! No need to create map file!");
+                return; 
+            }
             string path = Path.Combine(ModuleDirectory, "maps");
             mapName ??= Server.MapName;
             string file = Path.Combine(path, $"{mapName}.json");
@@ -32,7 +36,7 @@ namespace HuntDownTheEggs
             }
             catch (Exception ex)
             {
-                Logger.LogInformation($"Error przy tworzeniu folderu: {ex}");
+                Logger.LogInformation($"Error creating folder: {ex}");
             }
         }
 
@@ -118,11 +122,31 @@ namespace HuntDownTheEggs
 
             entity.Entity!.Name = $"pack-{name}";
 
+            if (Config.Glowing)
+            {
+                if (Enum.TryParse<KnownColor>(Config.GlowingColor, true, out var knownColor))
+                {
+                    Color colorGlow = Color.FromKnownColor(knownColor);
+                    SetGlowOnEntity(entity, colorGlow, Config.GlowingRange);
+                }
+                else
+                {
+                    SetGlowOnEntity(entity, Color.Green, Config.GlowingRange);
+                }
+            }
+            
+
+
             CreateTrigger(entity, new Vector(cords.X, cords.Y, cords.Z));
         }
 
         public void SerializeJsonFromMap()
         {
+            if (Config.SearchMode == false)
+            {
+                Logger.LogInformation("Search mode is turned off! No need to create map file!");
+                return;
+            }
             if (File.Exists(filePath))
             {
                 string json = File.ReadAllText(filePath);
@@ -134,6 +158,11 @@ namespace HuntDownTheEggs
         }
         public void WritePresentCords(CCSPlayerController controller, string modelColor)
         {
+            if (Config.SearchMode == false)
+            {
+                Logger.LogInformation("Search mode is turned off! No need to create map file!");
+                return;
+            }
             if (controller?.PlayerPawn?.Value == null) return;
             if (filePath == null)
             {
@@ -165,7 +194,11 @@ namespace HuntDownTheEggs
                 File.WriteAllText(filePath, JsonSerializer.Serialize(presents, options));
 
                 SerializeJsonFromMap();
+                if (Config.Debug == true)
+                {
                 Logger.LogInformation($"Saved present with ID: {newId} = {pos}");
+                }
+                    
                 return;
             }
         }
@@ -183,7 +216,11 @@ namespace HuntDownTheEggs
             }
 
             Presents.Clear();
+            if (Config.Debug == true)
+            {
             Logger.LogInformation($"RemovePresents - Removed all presents from map");
+            }
+                
 
         }
 
@@ -263,6 +300,28 @@ namespace HuntDownTheEggs
         public static string ReplaceMSG(string input)
         {
             return input.Replace("\n", "\u2029");
+        }
+
+        public static void SetGlowOnEntity(CBaseEntity? entity, Color GlowColor, int Range)
+        {
+            if (entity == null || !entity.IsValid)
+                return;
+
+            CDynamicProp Glow = Utilities.CreateEntityByName<CDynamicProp>("prop_dynamic")!;
+            Glow.Spawnflags = 256;
+            Glow.Render = Color.Transparent;
+            Glow.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(Glow.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
+            Glow.SetModel(entity.CBodyComponent!.SceneNode!.GetSkeletonInstance().ModelState.ModelName);
+            Glow.DispatchSpawn();
+            
+            Glow.Glow.GlowColorOverride = GlowColor;
+            Glow.Glow.GlowRange = Range;
+            Glow.Glow.GlowRangeMin = 0;
+            Glow.Glow.GlowTeam = -1; // -1 = Both, 2 = T, 3 = CT
+            Glow.Glow.GlowType = 3;
+
+            Glow.Teleport(entity.AbsOrigin, entity.AbsRotation, entity.AbsVelocity);
+            Glow.AcceptInput("SetParent", entity, Glow, "!activator");
         }
 
     }

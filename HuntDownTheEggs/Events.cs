@@ -61,7 +61,11 @@ namespace HuntDownTheEggs
 
         public HookResult OnRoundEnd(EventRoundOfficiallyEnded @event, GameEventInfo info)
         {
-            Logger.LogInformation("Round has ended! Clearing cache!");
+            if (Config.Debug == true)
+            {
+                Logger.LogInformation("Round has ended! Clearing cache!");
+            }
+
             Presents.Clear();
             return HookResult.Continue;
         }
@@ -97,7 +101,10 @@ namespace HuntDownTheEggs
             try
             {
                 await OnClientAuthorizedAsync(steamid);
+                if (Config.Debug == true) {
                 Logger.LogInformation($"[Player Load] {steamid} loaded successfully.");
+                }
+                
             }
             catch (Exception ex)
             {
@@ -132,11 +139,11 @@ namespace HuntDownTheEggs
         HookResult trigger_multiple(CEntityIOOutput output, string name, CEntityInstance activator, CEntityInstance caller, CVariant value, float delay)
         {
             var pawn = activator.As<CCSPlayerPawn>();
-            if (pawn == null)
+            if (pawn == null || !pawn.IsValid)
                 return HookResult.Continue;
 
             var player = pawn.OriginalController?.Value?.As<CCSPlayerController>();
-            if (player == null || player.IsBot)
+            if (player == null || player.IsBot || player.IsHLTV)
                 return HookResult.Continue;
 
             var eggName = Presents[caller.Index].Entity!.Name;
@@ -224,7 +231,11 @@ namespace HuntDownTheEggs
                 {
                     Task.Run(async () =>
                     {
-                        Logger.LogInformation("Saving player data that disconnected");
+                        if (Config.Debug == true)
+                        {
+                            Logger.LogInformation("Saving player data that disconnected");
+                        }
+
                         await SaveEggs(steamid64, name);
                     });
                 }

@@ -16,6 +16,7 @@ namespace HuntDownTheEggs
         [JsonPropertyName("DBName")] public string DBName { get; set; } = "db_";
         [JsonPropertyName("DBPassword")] public string DBPassword { get; set; } = "123";
         [JsonPropertyName("DeathMode")] public bool DeathMode { get; set; } = true;
+        [JsonPropertyName("SearchMode")] public bool SearchMode { get; set; } = true;
         [JsonPropertyName("SpawnDeathEggOnVictim")] public bool SpawnDeathEggOnVictim { get; set; } = true;
         [JsonPropertyName("ChanceToSpawn")] public float ChanceToSpawn { get; set; } = 100.0f;
         [JsonPropertyName("RemoveOnFind")] public bool RemoveOnFind { get; set; } = true;
@@ -23,5 +24,11 @@ namespace HuntDownTheEggs
 
         [JsonPropertyName("PresentTypes")]
         public Dictionary<string, EggsTypeConfig> EggsTypes { get; set; } = new();
+
+        [JsonPropertyName("Glowing")] public bool Glowing { get; set; } = false;
+        [JsonPropertyName("GlowingColor")] public string GlowingColor { get; set; } = "Green";
+        [JsonPropertyName("GlowingRange")] public int GlowingRange { get; set; } = 1500;
+
+        [JsonPropertyName("Debug")] public bool Debug { get; set; } = true;
     }
 }

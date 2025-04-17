@@ -36,5 +36,7 @@ namespace HuntDownTheEggs
             [JsonPropertyName("rewards")]
             public Dictionary<string, string> Rewards { get; set; } = new();
         }
+
+
     }
 }
