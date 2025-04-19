@@ -47,8 +47,23 @@ namespace HuntDownTheEggs
 
             if (presents == null || presents.Count == 0)
             {
-                DebugMode("No presents to find! You might want to try to restart the server / change map.");
-                return HookResult.Continue;
+                try
+                {
+                    DebugMode("Cannot find any presents. Trying to fetch data again.");
+                    SerializeJsonFromMap();
+
+                    // Tutaj warto jeszcze raz sprawdzić, czy po deserializacji coś jest:
+                    if (presents == null || presents.Count == 0)
+                    {
+                        DebugMode("Deserialized presents are still empty.");
+                        return HookResult.Continue;
+                    }
+                }
+                catch (Exception e)
+                {
+                    DebugMode(e.ToString());
+                    return HookResult.Continue;
+                }
             }
 
             foreach (var present in presents)
