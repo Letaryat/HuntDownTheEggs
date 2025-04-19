@@ -5,3 +5,7 @@ Model is taken from: https://sketchfab.com/3d-models/easter-eggs-2016-white-red-
 and imported to CS2 by me. My version have other, basic white texture without red circles.
 
 
+<p align="center">
+    <img src="img/eggpreview.jpg">
+</p>
+
