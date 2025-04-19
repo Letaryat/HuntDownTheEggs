@@ -125,7 +125,9 @@ namespace HuntDownTheEggs
             {
                 entity.AcceptInput("SetAnimation", value: "challenge_coin_idle");
             }
-            
+
+            entity!.CBodyComponent!.SceneNode!.GetSkeletonInstance().Scale = Config.EggModelScale;
+
             entity.Entity!.Name = $"pack-{name}";
 
             if (Config.Glowing)

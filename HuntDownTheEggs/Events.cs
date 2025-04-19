@@ -212,6 +212,14 @@ namespace HuntDownTheEggs
                     Presents[caller.Index].Remove();
                     caller.Remove();
                     Presents.Remove(caller.Index);
+                    if(Config.SpawnPlacedEggsOnce)
+                    {
+                        var egg = presents.FirstOrDefault(p => p.Id == eggID);
+                        if (egg != null)
+                        {
+                            presents.Remove(egg);
+                        }
+                    }
                 }
             }
             GivePrize(player);
