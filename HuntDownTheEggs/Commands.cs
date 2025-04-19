@@ -164,7 +164,7 @@ namespace HuntDownTheEggs
             {
                 controller.PrintToChat($"{Localizer["prefix"]}{Localizer["playerNotFound"]}");
             }
-            var myEggsMSG = ReplaceMSG(Localizer["myEggs", Players[controller.AuthorizedSteamID.SteamId64].eggs.Count(), Players[controller.AuthorizedSteamID.SteamId64].killeggs, Players[controller.AuthorizedSteamID.SteamId64].map]);
+            var myEggsMSG = ReplaceMSG(Localizer["myEggs", Players[controller.AuthorizedSteamID.SteamId64].totalEggs, Players[controller.AuthorizedSteamID.SteamId64].killeggs, Players[controller.AuthorizedSteamID.SteamId64].map]);
             controller.PrintToChat($"{myEggsMSG}");
             return;
         }
