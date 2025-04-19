@@ -26,8 +26,7 @@ If you have any more problems or would like to know more, [please visit wiki.](h
 - CounterStrikeSharp Discord,
 
 ### [💥] Model
-Unfortunately, no matter how hard I tried porting model from blender, it always ended up with some issues from my part. Because of that I am not providing any easter egg model since the one that I ported was buggy and large in size. I also did not find any cool model in CS2 files to use. If someone would like to share some kinda model of easter egg, easter egg basket or anything connected with easter, please make an issue on github. In my opinion it would be cool if the egg model was as a challenge_coin. Plugin uses loop animation of challenge coin for egg model when idle and it looks pretty :3. 
-Thanks!
+There is a basic easter egg model that you can use in your addons by using MultiAddonManager.
 
 ## [🚨] 
 Plugin is written by me. That means it might be poorly written and have some issues. Sometimes I have no idea what am I doing but when tested it works.
