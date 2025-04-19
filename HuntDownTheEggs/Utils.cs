@@ -65,7 +65,11 @@ namespace HuntDownTheEggs
             trigger.Collision.CollisionGroup = 14;
 
             trigger.SetModel("models/chicken/chicken.vmdl");
+            
             trigger.DispatchSpawn();
+            
+            trigger.CBodyComponent.SceneNode.GetSkeletonInstance().Scale = Config.EggModelScale;
+            
             trigger.Teleport(new Vector(position.X, position.Y, position.Z));
             trigger.AcceptInput("FollowEntity", entity, trigger, "!activator");
             trigger.AcceptInput("Enable");
