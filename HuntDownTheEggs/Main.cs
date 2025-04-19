@@ -11,7 +11,7 @@ public partial class HuntDownTheEggs : BasePlugin, IPluginConfig<PresentsConfig>
     public override string ModuleName => "Hunt Down The Eggs";
     public override string ModuleAuthor => "Letaryat";
     public override string ModuleDescription => "https://github.com/Letaryat/";
-    public override string ModuleVersion => "1.0.0";
+    public override string ModuleVersion => "1.1.0";
     public Dictionary<uint, CDynamicProp> Presents = new Dictionary<uint, CDynamicProp>();
     public string? mapName;
     public static HuntDownTheEggs Instance = new();
