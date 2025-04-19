@@ -76,7 +76,7 @@ public partial class HuntDownTheEggs : BasePlugin, IPluginConfig<PresentsConfig>
         ConnectionDB();
     }
 
-    public async Task OnClientAuthorizedAsync(ulong steamid, CCSPlayerController controller)
+    public async Task OnClientAuthorizedAsync(ulong steamid, string name)
     {
         DebugMode($"Client authorization: {steamid}");
         var user = await GetPlayerEggs(steamid, mapName!);
@@ -85,7 +85,7 @@ public partial class HuntDownTheEggs : BasePlugin, IPluginConfig<PresentsConfig>
             Players[steamid] = new PlayerEggs
             {
                 steamid = steamid,
-                playername = controller.PlayerName,
+                playername = name,
                 map = mapName!,
                 eggs = new(),
                 killeggs = 0
@@ -96,7 +96,7 @@ public partial class HuntDownTheEggs : BasePlugin, IPluginConfig<PresentsConfig>
             Players[steamid] = new PlayerEggs
             {
                 steamid = user!.steamid,
-                playername = controller.PlayerName,
+                playername = name,
                 map = user.map,
                 eggs = user.eggs,
                 killeggs = user.killeggs,

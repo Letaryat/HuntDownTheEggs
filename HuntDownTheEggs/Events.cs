@@ -98,14 +98,14 @@ namespace HuntDownTheEggs
                 return HookResult.Continue;
             var steamid64 = player.AuthorizedSteamID.SteamId64;
             */
-
+            var name = player.PlayerName;
             var steamid64 = player.SteamID;
 
             Task.Run(async () =>
             {
                 try
                 {
-                    await OnClientAuthorizedAsync(steamid64, player);
+                    await OnClientAuthorizedAsync(steamid64, name);
                 }
                 catch (Exception ex)
                 {
@@ -136,13 +136,14 @@ namespace HuntDownTheEggs
 
             if (player == null) return HookResult.Continue;
             var steamid64 = player.SteamID;
+            var name = player.PlayerName;
             if (!Players.ContainsKey(steamid64))
             {
                 Task.Run(async () =>
                 {
                     try
                     {
-                        await OnClientAuthorizedAsync(steamid64, player);
+                        await OnClientAuthorizedAsync(steamid64, name);
                     }
                     catch (Exception ex)
                     {
