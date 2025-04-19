@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using CounterStrikeSharp.API;
+using Dapper;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
 
@@ -222,6 +223,7 @@ namespace HuntDownTheEggs
             {
                 await using var connection = new MySqlConnection(DBConnection);
                 await connection.OpenAsync();
+
                 foreach (var p in Players) {
                     var sid = p.Key;
                     var player = p.Value;
@@ -229,6 +231,8 @@ namespace HuntDownTheEggs
                     var eggs = p.Value.eggs;
 
                     if (player == null) continue;
+
+                    var playerName = Utilities.GetPlayerFromSteamId(sid)!.PlayerName;
 
                     var combinedEggs = string.Join(",", eggs);
                     var userExist = await UserExist(sid, map);
@@ -242,8 +246,8 @@ namespace HuntDownTheEggs
                     else
                     {
                         await connection.ExecuteAsync(
-                        "INSERT INTO EggHunt (SteamID, Map, EggID, Name) VALUES (@sid, @map, @eggsString)",
-                            new { sid, map, eggsString = combinedEggs });
+                            "INSERT INTO EggHunt (SteamID, Map, EggID, Name) VALUES (@sid, @map, @eggsString, @name)",
+                            new { sid, map, eggsString = combinedEggs, name = playerName });
                     }
 
                     if (userExistKill)
@@ -255,7 +259,7 @@ namespace HuntDownTheEggs
                     else
                     {
                         await connection.ExecuteAsync(
-                        "INSERT INTO EggKills (SteamID, EggsPicked) VALUES (@sid, eggs)",
+                        "INSERT INTO EggKills (SteamID, EggsPicked) VALUES (@sid, @eggs)",
                             new { sid, eggs = p.Value.killeggs });
                     }
 

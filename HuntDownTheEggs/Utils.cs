@@ -65,7 +65,11 @@ namespace HuntDownTheEggs
             trigger.Collision.CollisionGroup = 14;
 
             trigger.SetModel("models/chicken/chicken.vmdl");
+            
             trigger.DispatchSpawn();
+            
+            trigger.CBodyComponent.SceneNode.GetSkeletonInstance().Scale = Config.EggModelScale;
+            
             trigger.Teleport(new Vector(position.X, position.Y, position.Z));
             trigger.AcceptInput("FollowEntity", entity, trigger, "!activator");
             trigger.AcceptInput("Enable");
@@ -121,9 +125,9 @@ namespace HuntDownTheEggs
 
             entity.UseAnimGraph = false;
 
-            if(Config.EggAnimation != null)
+            if(!string.IsNullOrWhiteSpace(Config.EggAnimation))
             {
-                entity.AcceptInput("SetAnimation", value: "challenge_coin_idle");
+                entity.AcceptInput("SetAnimation", value: Config.EggAnimation);
             }
 
             entity!.CBodyComponent!.SceneNode!.GetSkeletonInstance().Scale = Config.EggModelScale;
