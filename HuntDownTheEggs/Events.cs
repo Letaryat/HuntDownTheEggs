@@ -172,7 +172,8 @@ namespace HuntDownTheEggs
                     steamid = user.Result.steamid,
                     map = user.Result.map,
                     eggs = user.Result.eggs,
-                    killeggs = user.Result.killeggs
+                    killeggs = user.Result.killeggs,
+                    totalEggs = user.Result.totalEggs
                 };
             }
 

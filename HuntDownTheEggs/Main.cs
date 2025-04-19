@@ -96,7 +96,8 @@ public partial class HuntDownTheEggs : BasePlugin, IPluginConfig<PresentsConfig>
                 steamid = user!.steamid,
                 map = user.map,
                 eggs = user.eggs,
-                killeggs = user.killeggs
+                killeggs = user.killeggs,
+                totalEggs = user.totalEggs
             };
         }
 
