@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System.Drawing;
 using System.Text.Json;
 using CounterStrikeSharp.API.Modules.Utils;
+using static System.Formats.Asn1.AsnWriter;
 
 
 namespace HuntDownTheEggs
@@ -63,16 +64,17 @@ namespace HuntDownTheEggs
             trigger.Collision.SolidType = SolidType_t.SOLID_VPHYSICS;
             trigger.Collision.SolidFlags = 0;
             trigger.Collision.CollisionGroup = 14;
+            //trigger.Collision.CollisionGroup = 2;
 
-            trigger.SetModel("models/chicken/chicken.vmdl");
-            
+            trigger.SetModel(entity.CBodyComponent!.SceneNode!.GetSkeletonInstance().ModelState.ModelName);
+
             trigger.DispatchSpawn();
-            
-            trigger.CBodyComponent.SceneNode.GetSkeletonInstance().Scale = Config.EggModelScale;
             
             trigger.Teleport(new Vector(position.X, position.Y, position.Z));
             trigger.AcceptInput("FollowEntity", entity, trigger, "!activator");
             trigger.AcceptInput("Enable");
+
+            DrawWireframe3D(trigger.Collision.Mins, trigger.Collision.Maxs, "Green");
 
             if (Presents.ContainsKey(trigger.Index))
             {
