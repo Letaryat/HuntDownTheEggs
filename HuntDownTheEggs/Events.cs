@@ -105,7 +105,7 @@ namespace HuntDownTheEggs
             {
                 try
                 {
-                    await OnClientAuthorizedAsync(steamid64);
+                    await OnClientAuthorizedAsync(steamid64, player);
                 }
                 catch (Exception ex)
                 {
@@ -115,12 +115,12 @@ namespace HuntDownTheEggs
 
             return HookResult.Continue;
         }
-
+        /*
         private async Task HandlePlayerAsync(ulong steamid)
         {
             try
             {
-                await OnClientAuthorizedAsync(steamid);
+                await OnClientAuthorizedAsync(steamid, );
                 DebugMode("Player {steamid} loaded successfully.");
                 
             }
@@ -129,7 +129,7 @@ namespace HuntDownTheEggs
                 Logger.LogInformation($"[Player Load] Error loading {steamid}: {ex}");
             }
         }
-
+        */
         public HookResult OnPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info) 
         {
             var player = @event.Userid;
@@ -142,7 +142,7 @@ namespace HuntDownTheEggs
                 {
                     try
                     {
-                        await OnClientAuthorizedAsync(steamid64);
+                        await OnClientAuthorizedAsync(steamid64, player);
                     }
                     catch (Exception ex)
                     {
@@ -176,6 +176,7 @@ namespace HuntDownTheEggs
                     Players[steamid] = new PlayerEggs
                     {
                         steamid = steamid,
+                        playername = player.PlayerName,
                         map = mapName!,
                         eggs = new(),
                         killeggs = 0
@@ -185,6 +186,7 @@ namespace HuntDownTheEggs
                 Players[steamid] = new PlayerEggs
                 {
                     steamid = user.Result.steamid,
+                    playername = player.PlayerName,
                     map = user.Result.map,
                     eggs = user.Result.eggs,
                     killeggs = user.Result.killeggs,

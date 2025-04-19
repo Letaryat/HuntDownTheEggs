@@ -21,6 +21,7 @@ namespace HuntDownTheEggs
         public class PlayerEggs
         {
             public required ulong steamid { get; set; }
+            public string playername { get; set; }
             public string map {  get; set; }
             public List<int> eggs { get; set; }
             public int killeggs { get; set; }

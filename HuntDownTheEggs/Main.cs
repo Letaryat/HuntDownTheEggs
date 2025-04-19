@@ -1,5 +1,6 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Utils;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
@@ -75,7 +76,7 @@ public partial class HuntDownTheEggs : BasePlugin, IPluginConfig<PresentsConfig>
         ConnectionDB();
     }
 
-    public async Task OnClientAuthorizedAsync(ulong steamid)
+    public async Task OnClientAuthorizedAsync(ulong steamid, CCSPlayerController controller)
     {
         DebugMode($"Client authorization: {steamid}");
         var user = await GetPlayerEggs(steamid, mapName!);
@@ -84,6 +85,7 @@ public partial class HuntDownTheEggs : BasePlugin, IPluginConfig<PresentsConfig>
             Players[steamid] = new PlayerEggs
             {
                 steamid = steamid,
+                playername = controller.PlayerName,
                 map = mapName!,
                 eggs = new(),
                 killeggs = 0
@@ -94,6 +96,7 @@ public partial class HuntDownTheEggs : BasePlugin, IPluginConfig<PresentsConfig>
             Players[steamid] = new PlayerEggs
             {
                 steamid = user!.steamid,
+                playername = controller.PlayerName,
                 map = user.map,
                 eggs = user.eggs,
                 killeggs = user.killeggs,

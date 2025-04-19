@@ -229,10 +229,11 @@ namespace HuntDownTheEggs
                     var player = p.Value;
                     var map = p.Value.map;
                     var eggs = p.Value.eggs;
+                    var playerName = p.Value.playername;
 
                     if (player == null) continue;
 
-                    var playerName = Utilities.GetPlayerFromSteamId(sid)!.PlayerName;
+
 
                     var combinedEggs = string.Join(",", eggs);
                     var userExist = await UserExist(sid, map);
