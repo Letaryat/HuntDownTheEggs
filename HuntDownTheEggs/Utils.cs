@@ -12,7 +12,12 @@ namespace HuntDownTheEggs
     {
         public void GenerateFile()
         {
-            DebugMode("Search mode is turned off! No need to create map file!");
+            if(!Config.SearchMode)
+            {
+                DebugMode("Search mode is turned off! No need to create map file!");
+                return;
+            }
+            
 
             string path = Path.Combine(ModuleDirectory, "maps");
             mapName ??= Server.MapName;
@@ -116,8 +121,11 @@ namespace HuntDownTheEggs
 
             entity.UseAnimGraph = false;
 
-            entity.AcceptInput("SetAnimation", value: "challenge_coin_idle");
-
+            if(Config.EggAnimation != null)
+            {
+                entity.AcceptInput("SetAnimation", value: "challenge_coin_idle");
+            }
+            
             entity.Entity!.Name = $"pack-{name}";
 
             if (Config.Glowing)
@@ -140,7 +148,11 @@ namespace HuntDownTheEggs
 
         public void SerializeJsonFromMap()
         {
-            DebugMode("Search mode is turned off! No need to create map file!");
+            if (!Config.SearchMode)
+            {
+                DebugMode("Search mode is turned off! No need to serialize map file!");
+                return;
+            }
             if (File.Exists(filePath))
             {
                 string json = File.ReadAllText(filePath);
@@ -152,7 +164,11 @@ namespace HuntDownTheEggs
         }
         public void WritePresentCords(CCSPlayerController controller, string modelColor)
         {
-            DebugMode("Search mode is turned off! No need to create map file!");
+            if (!Config.SearchMode)
+            {
+                DebugMode("Search mode is turned off! No need to write cords into file!");
+                return;
+            }
             if (controller?.PlayerPawn?.Value == null) return;
             if (filePath == null)
             {

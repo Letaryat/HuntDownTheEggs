@@ -1,0 +1,26 @@
+"Layer0"
+{
+	"shader"	"csgo_simple.vfx"
+	"g_bFogEnabled"	"1"
+	"g_nScaleTexCoordUByModelScaleAxis"	"0"
+	"g_nScaleTexCoordVByModelScaleAxis"	"0"
+	"g_nTextureAddressModeU"	"0"
+	"g_nTextureAddressModeV"	"0"
+	"g_flMetalness"	"0"
+	"g_flModelTintAmount"	"1"
+	"g_flTexCoordRotation"	"0"
+	"g_vColorTint"	"[1.000000 1.000000 1.000000 0.000000]"
+	"g_vTexCoordCenter"	"[0.503000 0.500000 0.000000 0.000000]"
+	"g_vTexCoordOffset"	"[0.000000 0.000000 0.000000 0.000000]"
+	"g_vTexCoordScale"	"[1.000000 1.000000 0.000000 0.000000]"
+	"g_vTexCoordScrollSpeed"	"[0.000000 0.000000 0.000000 0.000000]"
+	"TextureAmbientOcclusion"	"materials/default/default_ao.tga"
+	"TextureColor"	"materials/eggbasket/bluepicnic.png"
+	"TextureNormal"	"materials/default/default_normal.tga"
+	"Compiled Textures"
+	{
+		"g_tAmbientOcclusion"	"materials/default/default_ao_tga_559f1ac6.vtex"
+		"g_tColor"	"materials/eggbasket/bluepicnic_png_d646c6db.vtex"
+		"g_tNormal"	"materials/default/default_normal_tga_7be61377.vtex"
+	}
+}

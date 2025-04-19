@@ -1,0 +1,171 @@
+<!-- kv3 encoding:text:version{e21c7f3c-8a33-41c5-9977-a76d3a32aa0d} format:modeldoc28:version{fb63b6ca-f435-4aa0-a2c7-c66ddc651dca} -->
+{
+	rootNode = 
+	{
+		_class = "RootNode"
+		children = 
+		[
+			
+			{
+				_class = "BoneMarkupList"
+				children = 
+				[
+				]
+				bone_cull_type = "None"
+			},
+			
+			{
+				_class = "RenderMeshList"
+				children = 
+				[
+					
+					{
+						_class = "RenderMeshFile"
+						name = "unnamed_1"
+						filename = "models/custom/jajcunio_unnamed_1.dmx"
+					},
+				]
+			},
+			
+			{
+				_class = "AnimationList"
+				children = 
+				[
+					
+					{
+						_class = "AnimFile"
+						name = "challenge_coin_idle"
+						source_filename = "models/custom/challenge_coin_idle.dmx"
+						fade_in_time = 0.200000
+						fade_out_time = 0.200000
+						looping = true
+						delta = false
+						worldSpace = false
+						hidden = false
+					},
+				]
+			},
+			
+			{
+				_class = "HitboxSetList"
+				children = 
+				[
+					
+					{
+						_class = "HitboxSet"
+						name = "Default"
+						children = 
+						[
+							
+							{
+								_class = "Hitbox"
+								hitbox_mins = 
+								[
+									-1.000000,
+									-1.000000,
+									-1.000000,
+								]
+								hitbox_maxs = 
+								[
+									1.000000,
+									1.000000,
+									1.000000,
+								]
+								name = "coin_bone"
+								parent_bone = "coin_bone"
+								surface_property = ""
+								translation_only = false
+								group_id = 0
+							},
+						]
+					},
+				]
+			},
+			
+			{
+				_class = "Skeleton"
+				children = 
+				[
+					
+					{
+						_class = "Bone"
+						name = "coin_bone"
+						origin = 
+						[
+							0.000000,
+							0.000000,
+							0.000000,
+						]
+						angles = 
+						[
+							-0.000000,
+							89.999960,
+							179.948500,
+						]
+						do_not_discard = true
+						children = 
+						[
+							
+							{
+								_class = "Bone"
+								name = "coin_bone_end"
+								origin = 
+								[
+									0.000001,
+									4.999998,
+									0.000001,
+								]
+								angles = 
+								[
+									0.000000,
+									0.000012,
+									-0.000006,
+								]
+								do_not_discard = true
+							},
+						]
+					},
+					
+					{
+						_class = "Bone"
+						name = "coin_bone_end_duplicate"
+						origin = 
+						[
+							5.061951,
+							0.000000,
+							0.000000,
+						]
+						angles = 
+						[
+							-0.000000,
+							89.999960,
+							179.948500,
+						]
+						do_not_discard = true
+						children = 
+						[
+							
+							{
+								_class = "Bone"
+								name = "coin_bone_end_end"
+								origin = 
+								[
+									0.000000,
+									4.999998,
+									0.000001,
+								]
+								angles = 
+								[
+									0.000000,
+									0.000012,
+									-0.000006,
+								]
+								do_not_discard = true
+							},
+						]
+					},
+				]
+			},
+		]
+	}
+}
