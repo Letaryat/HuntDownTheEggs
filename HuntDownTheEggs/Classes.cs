@@ -24,6 +24,7 @@ namespace HuntDownTheEggs
             public string map {  get; set; }
             public List<int> eggs { get; set; }
             public int killeggs { get; set; }
+            public int totalEggs { get; set; }
         }
         public class EggsTypeConfig
         {
@@ -36,5 +37,7 @@ namespace HuntDownTheEggs
             [JsonPropertyName("rewards")]
             public Dictionary<string, string> Rewards { get; set; } = new();
         }
+
+
     }
 }

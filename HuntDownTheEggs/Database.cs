@@ -65,8 +65,21 @@ namespace HuntDownTheEggs
                 var eggIds = await connection.QueryFirstOrDefaultAsync<string>(
                 "SELECT EggID FROM EggHunt WHERE SteamID = @steamid AND Map = @mapName",
                 new { steamid = SteamID, mapName });
+
+                /*
+                var totalEggs = await connection.QueryFirstOrDefaultAsync<int>(
+                "SELECT COALESCE(SUM(LENGTH(eh.EggID) - LENGTH(REPLACE(eh.EggID, ',', '')) + 1), 0) + COALESCE((SELECT SUM(EggsPicked)" +
+                "FROM EggKills ek WHERE ek.SteamID = eh.SteamID), 0) AS TotalEggs FROM EggHunt eh WHERE eh.SteamID = @SteamID;",
+                new { SteamID }
+                );
+                */
+
+                var totalEggs = await connection.QueryFirstOrDefaultAsync<int>(
+                "SELECT COALESCE(SUM(LENGTH(eh.EggID) - LENGTH(REPLACE(eh.EggID, ',', '')) + 1), 0) AS TotalEggs FROM EggHunt eh WHERE eh.SteamID = @SteamID;",
+                new { SteamID }
+                );
                 var eggKill = await connection.QueryFirstOrDefaultAsync<int>(
-                "SELECT EggsPicked FROM EggKills WHERE SteamID = @steamid AND Map = @mapName",
+                "SELECT COALESCE(SUM(EggsPicked), 0) FROM EggKills WHERE SteamID = @steamid",
                 new { steamid = SteamID, mapName });
 
                 if (eggIds == null) return null;
@@ -81,7 +94,8 @@ namespace HuntDownTheEggs
                     steamid = SteamID,
                     map = mapName,
                     eggs = existingEggs,
-                    killeggs = eggKill
+                    killeggs = eggKill,
+                    totalEggs = totalEggs
                 };
             }
             catch (Exception ex)

@@ -38,7 +38,7 @@ namespace HuntDownTheEggs
         {
             if (!File.Exists(filePath))
             {
-                Logger.LogInformation("Cannot find .json file with presents. You might want to try to restart the server / change map.");
+                DebugMode("Cannot find .json file with presents. You might want to try to restart the server / change map.");
                 return HookResult.Continue;
             }
 
@@ -47,7 +47,7 @@ namespace HuntDownTheEggs
 
             if (presents == null || presents.Count == 0)
             {
-                Logger.LogInformation("No presents to find! You might want to try to restart the server / change map.");
+                DebugMode("No presents to find! You might want to try to restart the server / change map.");
                 return HookResult.Continue;
             }
 
@@ -61,21 +61,30 @@ namespace HuntDownTheEggs
 
         public HookResult OnRoundEnd(EventRoundOfficiallyEnded @event, GameEventInfo info)
         {
-            Logger.LogInformation("Round has ended! Clearing cache!");
+            DebugMode("Round has ended! Clearing cache!");
+
             Presents.Clear();
             return HookResult.Continue;
         }
 
-        public HookResult OnPlayerConnectFull(EventPlayerConnectFull @event, GameEventInfo info) 
+        public HookResult OnPlayerConnectFull(EventPlayerConnectFull @event, GameEventInfo info)
         {
             var player = @event.Userid;
             if (player == null) return HookResult.Continue;
 
-            var msgWelcome = Localizer["welcomeMessage", presents.Count()];
-            var msg = ReplaceMSG(msgWelcome);
-            player.PrintToChat($"{msg}");
+            if (Config.SearchMode || presents.Count() != 0) {
+                var msgWelcome = Localizer["welcomeMessage", presents.Count()];
+                var msg = ReplaceMSG(msgWelcome);
+                player.PrintToChat($"{msg}");
+            }
 
-            var steamid64 = player.AuthorizedSteamID!.SteamId64;
+            /*
+            if (player.AuthorizedSteamID == null)
+                return HookResult.Continue;
+            var steamid64 = player.AuthorizedSteamID.SteamId64;
+            */
+
+            var steamid64 = player.SteamID;
 
             Task.Run(async () =>
             {
@@ -97,7 +106,8 @@ namespace HuntDownTheEggs
             try
             {
                 await OnClientAuthorizedAsync(steamid);
-                Logger.LogInformation($"[Player Load] {steamid} loaded successfully.");
+                DebugMode("Player {steamid} loaded successfully.");
+                
             }
             catch (Exception ex)
             {
@@ -132,11 +142,11 @@ namespace HuntDownTheEggs
         HookResult trigger_multiple(CEntityIOOutput output, string name, CEntityInstance activator, CEntityInstance caller, CVariant value, float delay)
         {
             var pawn = activator.As<CCSPlayerPawn>();
-            if (pawn == null)
+            if (pawn == null || !pawn.IsValid)
                 return HookResult.Continue;
 
             var player = pawn.OriginalController?.Value?.As<CCSPlayerController>();
-            if (player == null || player.IsBot)
+            if (player == null || player.IsBot || player.IsHLTV)
                 return HookResult.Continue;
 
             var eggName = Presents[caller.Index].Entity!.Name;
@@ -162,7 +172,8 @@ namespace HuntDownTheEggs
                     steamid = user.Result.steamid,
                     map = user.Result.map,
                     eggs = user.Result.eggs,
-                    killeggs = user.Result.killeggs
+                    killeggs = user.Result.killeggs,
+                    totalEggs = user.Result.totalEggs
                 };
             }
 
@@ -201,6 +212,14 @@ namespace HuntDownTheEggs
                     Presents[caller.Index].Remove();
                     caller.Remove();
                     Presents.Remove(caller.Index);
+                    if(Config.SpawnPlacedEggsOnce)
+                    {
+                        var egg = presents.FirstOrDefault(p => p.Id == eggID);
+                        if (egg != null)
+                        {
+                            presents.Remove(egg);
+                        }
+                    }
                 }
             }
             GivePrize(player);
@@ -224,7 +243,8 @@ namespace HuntDownTheEggs
                 {
                     Task.Run(async () =>
                     {
-                        Logger.LogInformation("Saving player data that disconnected");
+                        DebugMode($"Saving player data that disconnected!");
+
                         await SaveEggs(steamid64, name);
                     });
                 }

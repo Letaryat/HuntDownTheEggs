@@ -6,7 +6,7 @@
     "alreadyOwn": "{orange}You already found this egg!!",
     "killEgg": "{lightyellow}You picked up the kill egg!",
     "playerNotFound": "{darkred}Player not found!",
-    "myEggs": "{green}************{lightyellow}[EggHunting]{green}************\n{default}Your eggs on map:{lime}{2}!\n{default}You already found: {orange}{0} eggs!\n{default}In total you have: {orange}{1} kill eggs!",
+    "myEggs": "{green}************{lightyellow}[EggHunting]{green}************\n{default}Your eggs in total:{lime}{2}!\n{default}You already found: {orange}{0} eggs!\n{default}Your kill eggs:{orange}{1}\n{default}Found eggs on {orange}{4}{default}: {lime}{3}",
     "topListHeader": "{green}************{lightyellow}[TOPLIST]{green}************\n{default}",
     "topKillEggsListHeader": "{green}************{lightyellow}[TOP KILL EGGS]{green}************\n{default}",
     "topListPlayer": "{lightyellow}{green}{0}. {orange}{1} {green}- {lightyellow}{2}",
