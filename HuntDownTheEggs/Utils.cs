@@ -304,6 +304,11 @@ namespace HuntDownTheEggs
             return input.Replace("\n", "\u2029");
         }
 
+        /*
+         * Not sure who made this method. Was sent by my friend but I found this on CS# Discord:
+         * https://discord.com/channels/1160907911501991946/1311638450881167523/1311973008122052618
+         * So much thanks Dliix66 for sharing this method.
+         */
         public static void SetGlowOnEntity(CBaseEntity? entity, Color GlowColor, int Range)
         {
             if (entity == null || !entity.IsValid)
