@@ -98,14 +98,14 @@ namespace HuntDownTheEggs
                 return HookResult.Continue;
             var steamid64 = player.AuthorizedSteamID.SteamId64;
             */
-
+            var name = player.PlayerName;
             var steamid64 = player.SteamID;
 
             Task.Run(async () =>
             {
                 try
                 {
-                    await OnClientAuthorizedAsync(steamid64);
+                    await OnClientAuthorizedAsync(steamid64, name);
                 }
                 catch (Exception ex)
                 {
@@ -115,12 +115,12 @@ namespace HuntDownTheEggs
 
             return HookResult.Continue;
         }
-
+        /*
         private async Task HandlePlayerAsync(ulong steamid)
         {
             try
             {
-                await OnClientAuthorizedAsync(steamid);
+                await OnClientAuthorizedAsync(steamid, );
                 DebugMode("Player {steamid} loaded successfully.");
                 
             }
@@ -129,20 +129,21 @@ namespace HuntDownTheEggs
                 Logger.LogInformation($"[Player Load] Error loading {steamid}: {ex}");
             }
         }
-
+        */
         public HookResult OnPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info) 
         {
             var player = @event.Userid;
 
             if (player == null) return HookResult.Continue;
             var steamid64 = player.SteamID;
+            var name = player.PlayerName;
             if (!Players.ContainsKey(steamid64))
             {
                 Task.Run(async () =>
                 {
                     try
                     {
-                        await OnClientAuthorizedAsync(steamid64);
+                        await OnClientAuthorizedAsync(steamid64, name);
                     }
                     catch (Exception ex)
                     {
@@ -176,6 +177,7 @@ namespace HuntDownTheEggs
                     Players[steamid] = new PlayerEggs
                     {
                         steamid = steamid,
+                        playername = player.PlayerName,
                         map = mapName!,
                         eggs = new(),
                         killeggs = 0
@@ -185,6 +187,7 @@ namespace HuntDownTheEggs
                 Players[steamid] = new PlayerEggs
                 {
                     steamid = user.Result.steamid,
+                    playername = player.PlayerName,
                     map = user.Result.map,
                     eggs = user.Result.eggs,
                     killeggs = user.Result.killeggs,

@@ -254,7 +254,7 @@ namespace HuntDownTheEggs
 
                         var eggid = int.Parse(parts[1]);
 
-                        CheckIfPlayer(steamid);
+                        CheckIfPlayer(steamid, controller);
 
                         if (!Players[steamid].eggs.Contains(eggid))
                         {
@@ -274,7 +274,7 @@ namespace HuntDownTheEggs
                 Logger.LogInformation($"{e}");
             }
         }
-        public async Task CheckIfPlayer(ulong SteamID)
+        public async Task CheckIfPlayer(ulong SteamID, CCSPlayerController controller)
         {
             if (!Players.ContainsKey(SteamID))
             {
@@ -284,6 +284,7 @@ namespace HuntDownTheEggs
                 Players[SteamID] = new PlayerEggs
                 {
                     steamid = user!.steamid,
+                    playername = controller.PlayerName,
                     map = user.map,
                     eggs = user.eggs,
                     killeggs = user.killeggs
