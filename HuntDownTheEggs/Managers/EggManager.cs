@@ -74,6 +74,7 @@ namespace HuntDownTheEggs
                 _plugin.DebugLog("Cannot find any eggs! Trying to fetch data again!");
                 try
                 {
+                    _plugin.DebugLog($"Deserializng {_mapName}.json file again!");
                     LoadEggsFromMap();
                     if (_eggs!.Count == 0 || _eggs == null)
                     {
