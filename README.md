@@ -22,7 +22,9 @@ If you have any more problems or would like to know more, [please visit wiki.](h
 
 ## [💖] Special thanks to:
 - [Exkludera Gift Packages](https://github.com/exkludera/cs2-gift-packages) - Basically yoinked the whole idea of gifts and how to make presents/triggers/hookentityoutput,
+- [Mesharsky](https://github.com/Mesharsky/) - Complete plugin structure rework and for fixing issues.
 - [CS2-Ranks](https://github.com/partiusfabaa/cs2-ranks), [SimpleAdmin](github.com/daffyyyy/CS2-SimpleAdmin) used as an examples of Dapper and MySQLConnector, 
+- [Dliix66](https://discord.com/channels/1160907911501991946/1311638450881167523/1311973008122052618) - Method for glow effect,
 - CounterStrikeSharp Discord,
 
 ### [💥] Model
