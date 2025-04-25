@@ -67,6 +67,25 @@ namespace HuntDownTheEggs
             }
         }
 
+        public void CheckIfEggsAreThere()
+        {
+            if(_eggs.Count == 0 || _eggs == null)
+            {
+                _plugin.DebugLog("Cannot find any eggs! Trying to fetch data again!");
+                try
+                {
+                    LoadEggsFromMap();
+                    if (_eggs!.Count == 0 || _eggs == null)
+                    {
+                        _plugin.DebugLog("Still cannot find any eggs!");
+                    }
+                }
+                catch (Exception ex) {
+                    _plugin.DebugLog(ex.ToString());
+                }
+            }
+        }
+
         public void HandleEggPickup(CCSPlayerController controller, string eggName)
         {
             try

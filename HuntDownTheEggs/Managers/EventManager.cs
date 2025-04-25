@@ -60,10 +60,10 @@ namespace HuntDownTheEggs
             var victim = @event.Userid;
             var attacker = @event.Attacker;
             
-            if (victim == null || attacker == null || victim == attacker || victim.IsBot || victim.IsHLTV) 
+            if (victim == null || attacker == null || victim == attacker) 
                 return HookResult.Continue;
                 
-            if (attacker.PlayerPawn.Value == null || !attacker.PlayerPawn.IsValid || attacker.IsBot || attacker.IsHLTV)
+            if (attacker.PlayerPawn.Value == null || !attacker.PlayerPawn.IsValid)
                 return HookResult.Continue;
 
             // Spawn egg based on config setting
@@ -81,6 +81,9 @@ namespace HuntDownTheEggs
 
         private HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
         {
+            // If someone is using mp_match_end_restart 0 after map end and starting a new match on the same map it would not spawn eggs anymore.
+            // So it deserialize json again:
+            _plugin.EggManager!.CheckIfEggsAreThere();
             // Ensure eggs are spawned at round start
             _plugin.EggManager!.SpawnAllEggs();
             return HookResult.Continue;
