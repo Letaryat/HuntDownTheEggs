@@ -210,10 +210,12 @@ namespace HuntDownTheEggs
             {
                 Logger.LogInformation($"{ex}");
             }
+            /*
             finally
             {
                 Players.Remove(SteamID, out var _);
             }
+            */
         }
 
         public async Task SaveAllEggs()

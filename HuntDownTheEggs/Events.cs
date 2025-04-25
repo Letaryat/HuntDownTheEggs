@@ -183,24 +183,27 @@ namespace HuntDownTheEggs
                         killeggs = 0
                     };
                 }
-
-                Players[steamid] = new PlayerEggs
+                else
                 {
-                    steamid = user.Result.steamid,
-                    playername = player.PlayerName,
-                    map = user.Result.map,
-                    eggs = user.Result.eggs,
-                    killeggs = user.Result.killeggs,
-                    totalEggs = user.Result.totalEggs
-                };
+                    Players[steamid] = new PlayerEggs
+                    {
+                        steamid = user.Result.steamid,
+                        playername = player.PlayerName,
+                        map = user.Result.map,
+                        eggs = user.Result.eggs,
+                        killeggs = user.Result.killeggs,
+                        totalEggs = user.Result.totalEggs
+                    };
+                }
             }
 
             if (eggName.Contains("kill"))
             {
-
                     Players[steamid].killeggs++;
 
                     player.PrintToChat($"{Localizer["prefix"]}{Localizer["killEgg"]}");
+
+                    player.PrintToChat($"Test - {Players[steamid].killeggs}");
 
                     if (Presents.ContainsKey(caller.Index))
                     {

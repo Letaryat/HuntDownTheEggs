@@ -5,6 +5,8 @@ using System.Drawing;
 using System.Text.Json;
 using CounterStrikeSharp.API.Modules.Utils;
 using static System.Formats.Asn1.AsnWriter;
+using CounterStrikeSharp.API.Modules.Memory;
+using CounterStrikeSharp.API.Modules.Entities;
 
 
 namespace HuntDownTheEggs
@@ -74,7 +76,6 @@ namespace HuntDownTheEggs
             trigger.AcceptInput("FollowEntity", entity, trigger, "!activator");
             trigger.AcceptInput("Enable");
 
-            DrawWireframe3D(trigger.Collision.Mins, trigger.Collision.Maxs, "Green");
 
             if (Presents.ContainsKey(trigger.Index))
             {

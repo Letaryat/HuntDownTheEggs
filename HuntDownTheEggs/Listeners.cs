@@ -1,4 +1,5 @@
-﻿using CounterStrikeSharp.API.Core;
+﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands;
 using Microsoft.Extensions.Logging;
 
@@ -11,10 +12,9 @@ namespace HuntDownTheEggs
         {
             DebugMode("Changing map. Clearing cache!");
             
-
             Presents.Clear();
             presents.Clear();
-
+            
             return HookResult.Continue;
         }
 
