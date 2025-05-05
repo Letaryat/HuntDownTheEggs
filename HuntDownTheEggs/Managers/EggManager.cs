@@ -61,6 +61,16 @@ namespace HuntDownTheEggs
 
         public void SpawnAllEggs()
         {
+            if(_plugin.Config.SpawnRandomEggs)
+            {
+                for(var i = 0; i <= _plugin.Config.NumberOfRandomEggs; i++)
+                {
+                    Vector? randomPos = NavMesh.GetRandomPosition();
+                    if (randomPos == null) return;
+                    SpawnEgg(new Vector(randomPos.X, randomPos.Y, randomPos.Z), "default", "$kill");
+                    _plugin.DebugLog($"Spawned egg on: {randomPos.X} {randomPos.Y} {randomPos.Z}");
+                }
+            }
             foreach (var egg in _eggs)
             {
                 SpawnEgg(new Vector(egg.X, egg.Y, egg.Z), egg.ModelColor, $"{_mapName}_${egg.Id}");

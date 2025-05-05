@@ -53,7 +53,13 @@ namespace HuntDownTheEggs.Core
         
         [JsonPropertyName("SpawnPlacedEggsOnce")] 
         public bool SpawnPlacedEggsOnce { get; set; } = true;
-        
+
+        [JsonPropertyName("SpawnRandomEggs")]
+        public bool SpawnRandomEggs { get; set; } = true;
+
+        [JsonPropertyName("NumberOfRandomEggs")]
+        public float NumberOfRandomEggs { get; set; } = 5;
+
         [JsonPropertyName("ReceivePrize")] 
         public bool ReceivePrize { get; set; } = true;
 
