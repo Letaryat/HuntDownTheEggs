@@ -18,7 +18,7 @@ namespace HuntDownTheEggs
             _plugin.RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath);
             _plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
             _plugin.RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
-            _plugin.RegisterEventHandler<EventRoundOfficiallyEnded>(OnRoundEnd, HookMode.Pre);
+            _plugin.RegisterEventHandler<EventRoundEnd>(OnRoundEnd, HookMode.Pre);
             _plugin.RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
             _plugin.RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
 
@@ -38,9 +38,12 @@ namespace HuntDownTheEggs
             _plugin.EggManager!._mapFilePath = Path.Combine(_plugin.ModuleDirectory, "maps", $"{map}.json");
 
             // Initialize egg manager with the new map
-            _plugin.EggManager!.ClearEggs();
-            _plugin.EggManager.SpawnAllEggs();
-            
+            //_plugin.EggManager!.ClearEggs();
+
+            _plugin.EggManager!.CheckIfEggsAreThere();
+
+            //_plugin.EggManager.SpawnAllEggs();
+
             // Load top players
             _ = _plugin.PlayerManager.LoadTopPlayersAsync(map);
             
@@ -83,14 +86,21 @@ namespace HuntDownTheEggs
         {
             // If someone is using mp_match_end_restart 0 after map end and starting a new match on the same map it would not spawn eggs anymore.
             // So it deserialize json again:
+
             _plugin.EggManager!.CheckIfEggsAreThere();
+
             // Ensure eggs are spawned at round start
             _plugin.EggManager!.SpawnAllEggs();
             return HookResult.Continue;
         }
 
-        private HookResult OnRoundEnd(EventRoundOfficiallyEnded @event, GameEventInfo info)
+        private HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
         {
+            if (_plugin.Config.RemoveOnFind && _plugin.Config.SpawnPlacedEggsOnce)
+            {
+                _plugin.DebugLog("Saving eggs to map file that were taken");
+                _plugin.EggManager!.SaveIfRemovedEggs();
+            }
             _plugin.DebugLog("Round ended! Clearing egg entities.");
             _plugin.EggManager!.RemoveAllEggEntities();
             return HookResult.Continue;
@@ -236,10 +246,14 @@ namespace HuntDownTheEggs
                 _plugin.EggManager.GiveEggPrize(player);
                 return HookResult.Continue;
             }
+
+            _plugin.Logger.LogInformation($"Test: {eggName}");
             
             // If in placing mode, don't allow picking up eggs
             if (_plugin.EggManager.PlacingMode) return HookResult.Continue;
             
+
+
             // Parse egg ID
             string[] eggParts = eggEntity.Entity!.Name.Split("$");
             if (eggParts.Length < 2) return HookResult.Continue;
@@ -268,7 +282,9 @@ namespace HuntDownTheEggs
                     _plugin.EggManager.RemoveEgg(eggId);
                 }
             }
-            
+
+
+
             // Give prize to player
             _plugin.EggManager.GiveEggPrize(player);
 

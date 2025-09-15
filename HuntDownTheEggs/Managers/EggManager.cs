@@ -20,7 +20,7 @@ namespace HuntDownTheEggs
         public string _mapFilePath;
         private readonly Random _random = new();
         private static readonly object _fileLock = new();
-        
+
         public bool PlacingMode { get; set; } = false;
 
         public EggManager(HuntDownTheEggsPlugin plugin)
@@ -28,10 +28,10 @@ namespace HuntDownTheEggs
             _plugin = plugin;
             _mapName = Server.MapName;
             _mapFilePath = Path.Combine(_plugin.ModuleDirectory, "maps", $"{_mapName}.json");
-            
+
             // Create necessary directories and files
             GenerateMapFile();
-            
+
             // Load eggs from JSON file
             LoadEggsFromMap();
         }
@@ -69,7 +69,7 @@ namespace HuntDownTheEggs
 
         public void CheckIfEggsAreThere()
         {
-            if(_eggs.Count == 0 || _eggs == null)
+            if (_eggs.Count == 0 || _eggs == null)
             {
                 _plugin.DebugLog("Cannot find any eggs! Trying to fetch data again!");
                 try
@@ -81,7 +81,8 @@ namespace HuntDownTheEggs
                         _plugin.DebugLog("Still cannot find any eggs!");
                     }
                 }
-                catch (Exception ex) {
+                catch (Exception ex)
+                {
                     _plugin.DebugLog(ex.ToString());
                 }
             }
@@ -136,7 +137,7 @@ namespace HuntDownTheEggs
         public void SpawnEgg(Vector position, string? color, string name)
         {
             var entity = Utilities.CreateEntityByName<CDynamicProp>("prop_dynamic");
-            
+
             if (color == null)
             {
                 color = "default";
@@ -172,13 +173,15 @@ namespace HuntDownTheEggs
             entity!.DispatchSpawn();
             entity.SetModel(_plugin.Config.EggModel);
             entity.Teleport(position);
+            /*
             entity.UseAnimGraph = false;
 
             // Set animation if configured
             if (!string.IsNullOrWhiteSpace(_plugin.Config.EggAnimation))
             {
                 entity.AcceptInput("SetAnimation", value: _plugin.Config.EggAnimation);
-            }
+            }   
+            */
 
             // Scale the egg
             entity!.CBodyComponent!.SceneNode!.GetSkeletonInstance().Scale = _plugin.Config.EggModelScale;
@@ -201,21 +204,21 @@ namespace HuntDownTheEggs
             // Create trigger for egg
             CreateEggTrigger(entity, position);
         }
-        
+
         public string GetRandomEggType()
         {
             double roll = _random.NextDouble() * 100.0;
             double cumulative = 0;
-            
+
             foreach (var kv in _plugin.Config.EggsTypes)
             {
                 cumulative += kv.Value.Chance;
                 if (roll <= cumulative) return kv.Key;
             }
-            
+
             return _plugin.Config.EggsTypes.Keys.First();
         }
-        
+
         public (string ID, string Command) GetRandomPrize(string typeName)
         {
             var type = _plugin.Config.EggsTypes[typeName];
@@ -223,12 +226,12 @@ namespace HuntDownTheEggs
             var randomEntry = commands.ElementAt(_random.Next(0, commands.Count));
             return (randomEntry.Key, randomEntry.Value);
         }
-        
+
         public void GiveEggPrize(CCSPlayerController controller)
         {
-            if (controller == null || controller.PlayerPawn.Value == null || !controller.PlayerPawn.IsValid || controller.IsBot || controller.IsHLTV) 
+            if (controller == null || controller.PlayerPawn.Value == null || !controller.PlayerPawn.IsValid || controller.IsBot || controller.IsHLTV)
                 return;
-            
+
             if (_plugin.Config.ReceivePrize == false || _plugin.Config.EggsTypes.Count() == 0)
             {
                 controller.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["pickedEggNoPrize"]}");
@@ -237,40 +240,40 @@ namespace HuntDownTheEggs
 
             var randomType = GetRandomEggType();
             if (randomType == null) return;
-            
+
             var randomPrize = GetRandomPrize(randomType);
             var desc = randomPrize.ID.Replace(" ", "_");
-            
+
             controller.PrintToChat($"{_plugin.Localizer["prefix"]}{{{_plugin.Config.EggsTypes[randomType].Color}}}{_plugin.Localizer["recievedPrize", randomPrize.ID, randomType]}".ReplaceColorTags());
-            
+
             if (!_plugin.Localizer[$"recievedDesc.{desc}"].ResourceNotFound)
             {
                 controller.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer[$"recievedDesc.{desc}"]}");
             }
-            
+
             Server.ExecuteCommand(PluginUtilities.ReplacePlayerParameters(randomPrize.Command, controller));
         }
-        
+
         public void TrySpawnDeathEgg(CCSPlayerController controller)
         {
-            if (controller == null || !controller.PlayerPawn.IsValid || controller.PlayerPawn.Value == null) 
+            if (controller == null || !controller.PlayerPawn.IsValid || controller.PlayerPawn.Value == null)
                 return;
-                
+
             float chance = _plugin.Config.ChanceToSpawn;
             float roll = (float)(_random.NextDouble() * 100);
-            
+
             if (roll <= chance)
             {
                 Vector position = new Vector(
-                    controller.PlayerPawn.Value.AbsOrigin!.X, 
-                    controller.PlayerPawn.Value.AbsOrigin.Y, 
+                    controller.PlayerPawn.Value.AbsOrigin!.X,
+                    controller.PlayerPawn.Value.AbsOrigin.Y,
                     controller.PlayerPawn.Value.AbsOrigin.Z + _plugin.Config.EggModelHeight
                 );
-                
+
                 SpawnEgg(position, "default", "$kill");
             }
         }
-        
+
         public void AddNewEgg(CCSPlayerController controller, string modelColor)
         {
             if (!_plugin.Config.SearchMode)
@@ -278,16 +281,16 @@ namespace HuntDownTheEggs
                 _plugin.DebugLog("Search mode is disabled! No need to save egg locations.");
                 return;
             }
-            
+
             if (controller?.PlayerPawn?.Value == null) return;
-            
+
             lock (_fileLock)
             {
                 var pos = controller.PlayerPawn.Value.AbsOrigin;
                 if (pos == null) return;
 
                 int newId = _eggs.Count;
-                
+
                 // Add egg to list
                 _eggs.Add(new EggData
                 {
@@ -304,38 +307,44 @@ namespace HuntDownTheEggs
 
                 // Reload eggs from file
                 LoadEggsFromMap();
-                
+
                 _plugin.DebugLog($"Saved egg with ID: {newId} at position: {pos}");
             }
         }
 
         public void RemoveEgg(int id)
         {
-            if (id < 0 || id >= _eggs.Count) return;
-            
-            _eggs.RemoveAt(id);
+            var eggToRemove = _eggs.FirstOrDefault(e => e.Id == id);
+            if (eggToRemove == null) return;
 
-            // Re-index eggs
-            for (int i = 0; i < _eggs.Count; i++)
-            {
-                _eggs[i].Id = i;
-            }
+            _eggs.Remove(eggToRemove);
 
-            // Save updated eggs list
-            var options = new JsonSerializerOptions { WriteIndented = true };
-            File.WriteAllText(_mapFilePath, JsonSerializer.Serialize(_eggs, options));
+            _plugin.Logger.LogInformation($"Usuwam jajko o Id={id}");
         }
-        
+
+        public void SaveIfRemovedEggs()
+        {
+            lock (_fileLock)
+            {
+                for (int i = 0; i < _eggs.Count; i++)
+                {
+                    _eggs[i].Id = i;
+                }
+                var options = new JsonSerializerOptions { WriteIndented = true };
+                File.WriteAllText(_mapFilePath, JsonSerializer.Serialize(_eggs, options));
+            }
+        }
+
         public bool HasEgg(uint triggerIndex)
         {
             return _eggEntities.ContainsKey(triggerIndex);
         }
-        
+
         public CDynamicProp GetEgg(uint triggerIndex)
         {
             return _eggEntities[triggerIndex];
         }
-        
+
         public void RemoveEggEntity(uint triggerIndex, CTriggerMultiple trigger)
         {
             if (_eggEntities.TryGetValue(triggerIndex, out var eggEntity))
@@ -345,12 +354,12 @@ namespace HuntDownTheEggs
                 _eggEntities.Remove(triggerIndex);
             }
         }
-        
+
         public int GetEggCount()
         {
             return _eggs.Count;
         }
-        
+
         public EggData? GetEggById(int id)
         {
             return id >= 0 && id < _eggs.Count ? _eggs[id] : null;
@@ -393,7 +402,7 @@ namespace HuntDownTheEggs
                 _plugin.DebugLog("Search mode is disabled! No need to load map file.");
                 return;
             }
-            
+
             if (File.Exists(_mapFilePath))
             {
                 string json = File.ReadAllText(_mapFilePath);
@@ -402,6 +411,7 @@ namespace HuntDownTheEggs
                     _eggs.Clear();
                     var loadedEggs = JsonSerializer.Deserialize<List<EggData>>(json) ?? [];
                     _eggs.AddRange(loadedEggs);
+                    _plugin.DebugLog($"Loaded {_eggs.Count} eggs from {_mapName}.json");
                 }
             }
         }
@@ -410,6 +420,12 @@ namespace HuntDownTheEggs
         {
             var trigger = Utilities.CreateEntityByName<CTriggerMultiple>("trigger_multiple")!;
 
+            if (trigger == null)
+            {
+                _plugin.DebugLog("Failed to create trigger entity for egg!");
+                return;
+            }
+
             trigger.Entity!.Name = entity.Entity!.Name + "_trigger";
             trigger.Spawnflags = 1;
             trigger.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags &= ~(uint)(1 << 2);
@@ -417,20 +433,19 @@ namespace HuntDownTheEggs
             trigger.Collision.SolidFlags = 0;
             trigger.Collision.CollisionGroup = 14;
 
-            trigger.SetModel(_plugin.Config.EggModel);
-            
             trigger.DispatchSpawn();
-            
+            trigger.SetModel(_plugin.Config.EggModel);
             trigger.CBodyComponent.SceneNode.GetSkeletonInstance().Scale = _plugin.Config.EggModelScale;
-            
             trigger.Teleport(position);
-            trigger.AcceptInput("FollowEntity", entity, trigger, "!activator");
+            trigger.AcceptInput("SetParent", entity, trigger, "!activator");
             trigger.AcceptInput("Enable");
+
 
             if (_eggEntities.ContainsKey(trigger.Index))
             {
                 _eggEntities.Remove(trigger.Index);
             }
+
 
             _eggEntities.Add(trigger.Index, entity);
         }

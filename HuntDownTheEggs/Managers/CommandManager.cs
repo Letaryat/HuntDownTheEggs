@@ -114,6 +114,7 @@ namespace HuntDownTheEggs
             }
 
             _plugin.EggManager.RemoveEgg(id);
+            _plugin.EggManager.SaveIfRemovedEggs();
             _plugin.EggManager.RemoveAllEggEntities();
 
             // Respawn all eggs
