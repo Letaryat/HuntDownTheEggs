@@ -69,6 +69,12 @@ namespace HuntDownTheEggs.Core
         [JsonPropertyName("GlowingRange")] 
         public int GlowingRange { get; set; } = 1500;
 
+        [JsonPropertyName("HidePickedEggsForPlayer")]
+        public bool HidePickedEggsPlayer { get; set; } = true;
+
+        [JsonPropertyName("ShowKillEggOnlyForKiller")]
+        public bool ShowKillEggOnlyForKiller { get; set; } = false;
+
         [JsonPropertyName("Debug")] 
         public bool Debug { get; set; } = true;
     }

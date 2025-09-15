@@ -63,7 +63,7 @@ namespace HuntDownTheEggs
         {
             foreach (var egg in _eggs)
             {
-                SpawnEgg(new Vector(egg.X, egg.Y, egg.Z), egg.ModelColor, $"{_mapName}_${egg.Id}");
+                SpawnEgg(new Vector(egg.X, egg.Y, egg.Z), egg.ModelColor, $"letegg-{_mapName}_${egg.Id}");
             }
         }
 
@@ -179,21 +179,14 @@ namespace HuntDownTheEggs
             entity.Teleport(position);
 
             entity.UseAnimGraph = false;
-
-            entity.AcceptInput("SetAnimation", value: "challenge_coin_idle");
-
-            entity.IdleAnim = "challenge_coin_idle";
-            entity.IdleAnimLoopMode = AnimLoopMode_t.ANIM_LOOP_MODE_LOOPING;
-
-            entity.AcceptInput("Enable");
             
-
             // Set animation if configured
             if (!string.IsNullOrWhiteSpace(_plugin.Config.EggAnimation))
             {
-                //entity.AcceptInput("SetAnimation", value: _plugin.Config.EggAnimation);
+                entity.AcceptInput("SetAnimation", value: _plugin.Config.EggAnimation);
             }
 
+            entity.AcceptInput("Enable");
 
             // Scale the egg
             entity!.CBodyComponent!.SceneNode!.GetSkeletonInstance().Scale = _plugin.Config.EggModelScale;
@@ -282,7 +275,7 @@ namespace HuntDownTheEggs
                     controller.PlayerPawn.Value.AbsOrigin.Z + _plugin.Config.EggModelHeight
                 );
 
-                SpawnEgg(position, "default", "$kill");
+                SpawnEgg(position, "default", $"$kill_{controller.UserId}");
             }
         }
 

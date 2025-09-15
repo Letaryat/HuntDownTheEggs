@@ -25,47 +25,23 @@ namespace HuntDownTheEggs
             // Register listeners
             _plugin.RegisterListener<Listeners.OnMapStart>(OnMapStart);
             _plugin.RegisterListener<Listeners.OnServerPrecacheResources>(OnServerPrecacheResources);
-            
+            _plugin.RegisterListener<Listeners.CheckTransmit>(OnCheckTransmit);
+
             // Hook entity outputs
             _plugin.HookEntityOutput("trigger_multiple", "OnStartTouch", OnTriggerTouch, HookMode.Pre);
         }
 
-        private void OnMapStart(string map)
-        {
-            _plugin.PlayerManager!.ClearPlayers();
-
-            _plugin.EggManager!._mapName = map;
-            _plugin.EggManager!._mapFilePath = Path.Combine(_plugin.ModuleDirectory, "maps", $"{map}.json");
-
-            // Initialize egg manager with the new map
-            //_plugin.EggManager!.ClearEggs();
-
-            _plugin.EggManager!.CheckIfEggsAreThere();
-
-            //_plugin.EggManager.SpawnAllEggs();
-
-            // Load top players
-            _ = _plugin.PlayerManager.LoadTopPlayersAsync(map);
-            
-
-            _plugin.DebugLog($"Map started: {map}");
-        }
-
-        private void OnServerPrecacheResources(ResourceManifest manifest)
-        {
-            manifest.AddResource(_plugin.Config.EggModel);
-        }
 
         private HookResult OnPlayerDeath(EventPlayerDeath @event, GameEventInfo info)
         {
             if (!_plugin.Config.DeathMode) return HookResult.Continue;
-            
+
             var victim = @event.Userid;
             var attacker = @event.Attacker;
-            
-            if (victim == null || attacker == null || victim == attacker) 
+
+            if (victim == null || attacker == null || victim == attacker)
                 return HookResult.Continue;
-                
+
             if (attacker.PlayerPawn.Value == null || !attacker.PlayerPawn.IsValid)
                 return HookResult.Continue;
 
@@ -143,10 +119,10 @@ namespace HuntDownTheEggs
         {
             var player = @event.Userid;
             if (player == null || player.IsBot || player.IsHLTV) return HookResult.Continue;
-            
+
             var steamId = player.SteamID;
             var playerName = player.PlayerName;
-            
+
             // Ensure player data is loaded
             if (_plugin.PlayerManager!.GetPlayerData(steamId) == null)
             {
@@ -162,7 +138,7 @@ namespace HuntDownTheEggs
                     }
                 });
             }
-            
+
             return HookResult.Continue;
         }
 
@@ -175,11 +151,11 @@ namespace HuntDownTheEggs
 
                 var steamId = player.SteamID;
                 var playerName = player.PlayerName;
-                
+
                 Task.Run(async () =>
                 {
                     _plugin.DebugLog($"Saving data for disconnected player: {playerName}");
-                    
+
                     if (_plugin.PlayerManager!.GetPlayerData(steamId) != null)
                     {
                         await _plugin.PlayerManager.SavePlayerAsync(steamId, playerName);
@@ -218,7 +194,7 @@ namespace HuntDownTheEggs
             // Get egg entity and steamId
             var eggEntity = _plugin.EggManager.GetEgg(triggerIndex);
             var steamId = player.AuthorizedSteamID?.SteamId64 ?? player.SteamID;
-            
+
             if (steamId == 0) return HookResult.Continue;
 
             // Ensure player data is loaded
@@ -238,36 +214,35 @@ namespace HuntDownTheEggs
             {
                 _plugin.PlayerManager.IncrementKillEggs(steamId);
                 player.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["killEgg"]}");
-                
+
                 // Remove the egg entity
                 _plugin.EggManager.RemoveEggEntity(triggerIndex, caller.As<CTriggerMultiple>());
-                
+
                 // Give prize to player
                 _plugin.EggManager.GiveEggPrize(player);
                 return HookResult.Continue;
             }
 
-            _plugin.Logger.LogInformation($"Test: {eggName}");
-            
             // If in placing mode, don't allow picking up eggs
             if (_plugin.EggManager.PlacingMode) return HookResult.Continue;
-            
+
 
 
             // Parse egg ID
             string[] eggParts = eggEntity.Entity!.Name.Split("$");
             if (eggParts.Length < 2) return HookResult.Continue;
-            
+
             if (!int.TryParse(eggParts[1], out int eggId))
                 return HookResult.Continue;
 
             // Check if player already owns this egg
             if (playerData.Eggs.Contains(eggId))
             {
+                if (_plugin.Config.HidePickedEggsPlayer) return HookResult.Continue;
                 player.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["alreadyOwn"]}");
                 return HookResult.Continue;
             }
-            
+
             // Add egg to player's collection
             _plugin.EggManager.HandleEggPickup(player, eggEntity.Entity!.Name);
 
@@ -275,7 +250,7 @@ namespace HuntDownTheEggs
             if (_plugin.Config.RemoveOnFind)
             {
                 _plugin.EggManager.RemoveEggEntity(triggerIndex, caller.As<CTriggerMultiple>());
-                
+
                 // Remove egg from map file if configured to spawn eggs only once
                 if (_plugin.Config.SpawnPlacedEggsOnce)
                 {
@@ -290,5 +265,106 @@ namespace HuntDownTheEggs
 
             return HookResult.Continue;
         }
+
+
+        // Listeners:
+        private void OnMapStart(string map)
+        {
+            _plugin.PlayerManager!.ClearPlayers();
+
+            _plugin.EggManager!._mapName = map;
+            _plugin.EggManager!._mapFilePath = Path.Combine(_plugin.ModuleDirectory, "maps", $"{map}.json");
+
+            // Initialize egg manager with the new map
+            //_plugin.EggManager!.ClearEggs();
+
+            _plugin.EggManager!.CheckIfEggsAreThere();
+
+            //_plugin.EggManager.SpawnAllEggs();
+
+            // Load top players
+            _ = _plugin.PlayerManager.LoadTopPlayersAsync(map);
+
+
+            _plugin.DebugLog($"Map started: {map}");
+        }
+
+        private void OnServerPrecacheResources(ResourceManifest manifest)
+        {
+            manifest.AddResource(_plugin.Config.EggModel);
+        }
+        private void OnCheckTransmit(CCheckTransmitInfoList infoList)
+        {
+            var allEggs = Utilities.FindAllEntitiesByDesignerName<CDynamicProp>("prop_dynamic");
+            if (allEggs == null || !allEggs.Any()) return;
+            try
+            {
+                foreach (var entry in infoList)
+                {
+                    CCheckTransmitInfo info;
+                    CCSPlayerController? player;
+
+                    try
+                    {
+                        (info, player) = ((CCheckTransmitInfo, CCSPlayerController))entry;
+                    }
+                    catch
+                    {
+                        continue;
+                    }
+
+                    if (player == null) continue;
+                    var steamId = player.AuthorizedSteamID?.SteamId64 ?? player.SteamID;
+                    var playerData = _plugin.PlayerManager!.GetPlayerData(steamId);
+                    if (playerData == null) continue;
+
+
+                    foreach (var egg in allEggs)
+                    {
+                        //if (ad?.Entity?.Name != null && ad.Entity.Name.Contains("advert"))
+                        if (egg.Entity!.Name == null) continue;
+
+                        //Hide already picked up eggs:
+                        if (_plugin.Config.HidePickedEggsPlayer)
+                        {
+                            if (egg.Entity.Name.StartsWith("pack-letegg"))
+                            {
+                                var eggParts = egg.Entity.Name.Split('$');
+                                if (eggParts.Length < 2) continue;
+                                if (int.TryParse(eggParts[1], out int eggId))
+                                {
+                                    if (playerData.Eggs.Contains(eggId))
+                                    {
+                                        info.TransmitEntities.Remove(egg);
+                                    }
+                                }
+                            }
+                        }
+                        //Hide kill eggs for non-killers:
+                        if (_plugin.Config.HidePickedEggsPlayer)
+                        {
+                            if (egg.Entity.Name.StartsWith("pack-$kill"))
+                            {
+                                var killer = egg.Entity.Name.Split('_');
+                                if (killer.Length < 2) continue;
+                                if (int.TryParse(killer[1], out int eggId))
+                                {
+                                    if (player.UserId != eggId)
+                                    {
+                                        info.TransmitEntities.Remove(egg);
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+            catch (Exception error)
+            {
+                _plugin.DebugLog($"[HDTE] [Checktransmit] error: {error}");
+            }
+        }
+
     }
 }
