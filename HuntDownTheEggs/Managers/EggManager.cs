@@ -169,19 +169,31 @@ namespace HuntDownTheEggs
                 }
             }
 
+            entity!.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags &= unchecked((uint)~(1 << 2));
+
             // Configure egg entity
-            entity!.DispatchSpawn();
             entity.SetModel(_plugin.Config.EggModel);
+
+            entity!.DispatchSpawn();
+            
             entity.Teleport(position);
-            /*
+
             entity.UseAnimGraph = false;
+
+            entity.AcceptInput("SetAnimation", value: "challenge_coin_idle");
+
+            entity.IdleAnim = "challenge_coin_idle";
+            entity.IdleAnimLoopMode = AnimLoopMode_t.ANIM_LOOP_MODE_LOOPING;
+
+            entity.AcceptInput("Enable");
+            
 
             // Set animation if configured
             if (!string.IsNullOrWhiteSpace(_plugin.Config.EggAnimation))
             {
-                entity.AcceptInput("SetAnimation", value: _plugin.Config.EggAnimation);
-            }   
-            */
+                //entity.AcceptInput("SetAnimation", value: _plugin.Config.EggAnimation);
+            }
+
 
             // Scale the egg
             entity!.CBodyComponent!.SceneNode!.GetSkeletonInstance().Scale = _plugin.Config.EggModelScale;
