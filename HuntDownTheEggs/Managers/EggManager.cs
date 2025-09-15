@@ -61,6 +61,18 @@ namespace HuntDownTheEggs
 
         public void SpawnAllEggs()
         {
+            if(_plugin.Config.SpawnRandomEggs)
+            {
+                for(var i = 0; i <= _plugin.Config.NumberOfRandomEggs; i++)
+                {
+                    var randomPos = PluginUtilities.Test();
+                    _plugin.Logger.LogInformation($"Spawning random egg: 1 ${randomPos}");   
+                    if (randomPos == null) return;
+                    _plugin.Logger.LogInformation($"Spawning random egg: 12");
+                    SpawnEgg(new Vector(randomPos.X, randomPos.Y, randomPos.Z), "default", "$kill");
+                }
+            }
+
             foreach (var egg in _eggs)
             {
                 SpawnEgg(new Vector(egg.X, egg.Y, egg.Z), egg.ModelColor, $"letegg-{_mapName}_${egg.Id}");

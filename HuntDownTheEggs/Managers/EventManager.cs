@@ -62,11 +62,11 @@ namespace HuntDownTheEggs
         {
             // If someone is using mp_match_end_restart 0 after map end and starting a new match on the same map it would not spawn eggs anymore.
             // So it deserialize json again:
-
             _plugin.EggManager!.CheckIfEggsAreThere();
 
             // Ensure eggs are spawned at round start
             _plugin.EggManager!.SpawnAllEggs();
+
             return HookResult.Continue;
         }
 

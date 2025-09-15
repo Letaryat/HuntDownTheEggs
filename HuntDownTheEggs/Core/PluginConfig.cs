@@ -6,67 +6,67 @@ namespace HuntDownTheEggs.Core
 {
     public class PluginConfig : BasePluginConfig
     {
-        [JsonPropertyName("EggRootFlag")] 
+        [JsonPropertyName("EggRootFlag")]
         public string EggRootFlag { get; set; } = "@egg/root";
-        
-        [JsonPropertyName("EggModel")] 
+
+        [JsonPropertyName("EggModel")]
         public string EggModel { get; set; } = "models/chicken/chicken.vmdl";
-        
-        [JsonPropertyName("EggAnimation")] 
+
+        [JsonPropertyName("EggAnimation")]
         public string EggAnimation { get; set; } = "challenge_coin_idle";
-        
-        [JsonPropertyName("EggModelHeight")] 
+
+        [JsonPropertyName("EggModelHeight")]
         public float EggModelHeight { get; set; } = 0;
-        
-        [JsonPropertyName("EggModelScale")] 
+
+        [JsonPropertyName("EggModelScale")]
         public float EggModelScale { get; set; } = 1;
-        
-        [JsonPropertyName("DBHost")] 
+
+        [JsonPropertyName("DBHost")]
         public string DBHost { get; set; } = "localhost";
-        
-        [JsonPropertyName("DBPort")] 
+
+        [JsonPropertyName("DBPort")]
         public uint DBPort { get; set; } = 3306;
-        
-        [JsonPropertyName("DBUsername")] 
+
+        [JsonPropertyName("DBUsername")]
         public string DBUsername { get; set; } = "root";
-        
-        [JsonPropertyName("DBName")] 
+
+        [JsonPropertyName("DBName")]
         public string DBName { get; set; } = "db_";
-        
-        [JsonPropertyName("DBPassword")] 
+
+        [JsonPropertyName("DBPassword")]
         public string DBPassword { get; set; } = "123";
-        
-        [JsonPropertyName("DeathMode")] 
+
+        [JsonPropertyName("DeathMode")]
         public bool DeathMode { get; set; } = true;
-        
-        [JsonPropertyName("SearchMode")] 
+
+        [JsonPropertyName("SearchMode")]
         public bool SearchMode { get; set; } = true;
-        
-        [JsonPropertyName("SpawnDeathEggOnVictim")] 
+
+        [JsonPropertyName("SpawnDeathEggOnVictim")]
         public bool SpawnDeathEggOnVictim { get; set; } = true;
-        
-        [JsonPropertyName("ChanceToSpawn")] 
+
+        [JsonPropertyName("ChanceToSpawn")]
         public float ChanceToSpawn { get; set; } = 100.0f;
-        
-        [JsonPropertyName("RemoveOnFind")] 
+
+        [JsonPropertyName("RemoveOnFind")]
         public bool RemoveOnFind { get; set; } = true;
-        
-        [JsonPropertyName("SpawnPlacedEggsOnce")] 
+
+        [JsonPropertyName("SpawnPlacedEggsOnce")]
         public bool SpawnPlacedEggsOnce { get; set; } = true;
-        
-        [JsonPropertyName("ReceivePrize")] 
+
+        [JsonPropertyName("ReceivePrize")]
         public bool ReceivePrize { get; set; } = true;
 
         [JsonPropertyName("PresentTypes")]
         public Dictionary<string, EggTypeConfig> EggsTypes { get; set; } = [];
 
-        [JsonPropertyName("Glowing")] 
+        [JsonPropertyName("Glowing")]
         public bool Glowing { get; set; } = false;
-        
-        [JsonPropertyName("GlowingColor")] 
+
+        [JsonPropertyName("GlowingColor")]
         public string GlowingColor { get; set; } = "Green";
-        
-        [JsonPropertyName("GlowingRange")] 
+
+        [JsonPropertyName("GlowingRange")]
         public int GlowingRange { get; set; } = 1500;
 
         [JsonPropertyName("HidePickedEggsForPlayer")]
@@ -75,7 +75,13 @@ namespace HuntDownTheEggs.Core
         [JsonPropertyName("ShowKillEggOnlyForKiller")]
         public bool ShowKillEggOnlyForKiller { get; set; } = false;
 
-        [JsonPropertyName("Debug")] 
+        [JsonPropertyName("SpawnRandomEggs")]
+        public bool SpawnRandomEggs { get; set; } = true;
+
+        [JsonPropertyName("NumberOfRandomEggs")]
+        public float NumberOfRandomEggs { get; set; } = 200;
+
+        [JsonPropertyName("Debug")]
         public bool Debug { get; set; } = true;
     }
 }
