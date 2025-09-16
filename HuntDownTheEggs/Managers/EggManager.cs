@@ -5,6 +5,7 @@ using CounterStrikeSharp.API.Modules.Utils;
 using HuntDownTheEggs.Core;
 using HuntDownTheEggs.Models;
 using HuntDownTheEggs.Utils;
+
 using Microsoft.Extensions.Logging;
 using System.Drawing;
 using System.Text.Json;
@@ -20,7 +21,6 @@ namespace HuntDownTheEggs
         public string _mapFilePath;
         private readonly Random _random = new();
         private static readonly object _fileLock = new();
-
         public bool PlacingMode { get; set; } = false;
 
         public EggManager(HuntDownTheEggsPlugin plugin)
@@ -61,17 +61,20 @@ namespace HuntDownTheEggs
 
         public void SpawnAllEggs()
         {
-            if(_plugin.Config.SpawnRandomEggs)
+            if (_plugin.Config.SpawnRandomEggs)
             {
-                for(var i = 0; i <= _plugin.Config.NumberOfRandomEggs; i++)
+                _plugin.Logger.LogInformation("Spawning random eggs");
+                for (int i = 0; i < _plugin.Config.NumberOfRandomEggs; i++)
                 {
-                    var randomPos = PluginUtilities.Test();
-                    _plugin.Logger.LogInformation($"Spawning random egg: 1 ${randomPos}");   
-                    if (randomPos == null) return;
-                    _plugin.Logger.LogInformation($"Spawning random egg: 12");
+                    var randomPos = _plugin.SpawnManager!.GenerateRandomSpawn();
+
+                    if (randomPos == null) continue;
+                    _plugin.DebugLog($"Generated random spawn at: {randomPos}");
+                    
                     SpawnEgg(new Vector(randomPos.X, randomPos.Y, randomPos.Z), "default", "$kill");
                 }
             }
+
 
             foreach (var egg in _eggs)
             {
@@ -187,11 +190,11 @@ namespace HuntDownTheEggs
             entity.SetModel(_plugin.Config.EggModel);
 
             entity!.DispatchSpawn();
-            
+
             entity.Teleport(position);
 
             entity.UseAnimGraph = false;
-            
+
             // Set animation if configured
             if (!string.IsNullOrWhiteSpace(_plugin.Config.EggAnimation))
             {

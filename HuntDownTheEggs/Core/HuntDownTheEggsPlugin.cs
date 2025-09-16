@@ -17,32 +17,36 @@ namespace HuntDownTheEggs.Core
         public new CommandManager? CommandManager { get; private set; }
         public EventManager? EventManager { get; private set; }
 
+        public SpawnsManager? SpawnManager { get; private set; }
+
+
         // Configuration
         public required PluginConfig Config { get; set; }
         
         // Plugin instance for global access
         public static HuntDownTheEggsPlugin? Instance { get; private set; }
-
+    
         public override void Load(bool hotReload)
         {
             Instance = this;
-            
+
             // Initialize managers
             DatabaseManager = new DatabaseManager(this);
             PlayerManager = new PlayerManager(this);
             EggManager = new EggManager(this);
             CommandManager = new CommandManager(this);
             EventManager = new EventManager(this);
-            
+            SpawnManager = new SpawnsManager(this);
+
             // Register event handlers through the event manager
             EventManager.RegisterEvents();
-            
+
             // Register commands through the command manager
             CommandManager.RegisterCommands();
 
             // Initialize database connection
             DatabaseManager?.InitializeConnection();
-            
+
             Logger.LogInformation($"HuntDownTheEggs v{ModuleVersion} has been loaded!");
         }
 

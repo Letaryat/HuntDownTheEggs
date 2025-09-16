@@ -17,6 +17,7 @@ namespace HuntDownTheEggs
             // Register game events
             _plugin.RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath);
             _plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
+            _plugin.RegisterEventHandler<EventRoundStart>(MatchStart, HookMode.Pre);
             _plugin.RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
             _plugin.RegisterEventHandler<EventRoundEnd>(OnRoundEnd, HookMode.Pre);
             _plugin.RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
@@ -31,6 +32,12 @@ namespace HuntDownTheEggs
             _plugin.HookEntityOutput("trigger_multiple", "OnStartTouch", OnTriggerTouch, HookMode.Pre);
         }
 
+        private HookResult MatchStart(EventRoundStart @event, GameEventInfo info)
+        {
+            if(_plugin.SpawnManager!.DeathmatchSpawns.Any()) return HookResult.Continue;
+            _plugin.SpawnManager!.SetDMSpawns();
+            throw new NotImplementedException();
+        }
 
         private HookResult OnPlayerDeath(EventPlayerDeath @event, GameEventInfo info)
         {
@@ -60,6 +67,8 @@ namespace HuntDownTheEggs
 
         private HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
         {
+
+            //_plugin.SpawnManager!.SetDMSpawns();
             // If someone is using mp_match_end_restart 0 after map end and starting a new match on the same map it would not spawn eggs anymore.
             // So it deserialize json again:
             _plugin.EggManager!.CheckIfEggsAreThere();
@@ -79,6 +88,9 @@ namespace HuntDownTheEggs
             }
             _plugin.DebugLog("Round ended! Clearing egg entities.");
             _plugin.EggManager!.RemoveAllEggEntities();
+
+            Server.ExecuteCommand("mp_randomspawn 0");
+
             return HookResult.Continue;
         }
 
@@ -285,8 +297,8 @@ namespace HuntDownTheEggs
             // Load top players
             _ = _plugin.PlayerManager.LoadTopPlayersAsync(map);
 
-
             _plugin.DebugLog($"Map started: {map}");
+            
         }
 
         private void OnServerPrecacheResources(ResourceManifest manifest)
