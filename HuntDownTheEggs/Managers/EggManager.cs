@@ -3,6 +3,7 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Translations;
 using CounterStrikeSharp.API.Modules.Utils;
 using HuntDownTheEggs.Core;
+using HuntDownTheEggs.Extensions;
 using HuntDownTheEggs.Models;
 using HuntDownTheEggs.Utils;
 
@@ -66,12 +67,11 @@ namespace HuntDownTheEggs
                 _plugin.Logger.LogInformation("Spawning random eggs");
                 for (int i = 0; i < _plugin.Config.NumberOfRandomEggs; i++)
                 {
-                    var randomPos = _plugin.SpawnManager!.GenerateRandomSpawn();
-
-                    if (randomPos == null) continue;
-                    _plugin.DebugLog($"Generated random spawn at: {randomPos}");
-                    
-                    SpawnEgg(new Vector(randomPos.X, randomPos.Y, randomPos.Z), "default", "$kill");
+                    Vector? randomPos = NavMesh.GetRandomPosition();
+                    _plugin.DebugLog($"Test {randomPos}");
+                    if (randomPos == null) return;
+                    SpawnEgg(new Vector(randomPos.X, randomPos.Y, randomPos.Z), "default", "$kill_random");
+                    _plugin.DebugLog($"Spawned egg on: {randomPos.X} {randomPos.Y} {randomPos.Z}");
                 }
             }
 
@@ -157,6 +157,8 @@ namespace HuntDownTheEggs
             {
                 color = "default";
             }
+
+            position = new Vector(position.X, position.Y, position.Z + _plugin.Config.EggModelHeight);
 
             // Set egg color
             if (color != "default")
