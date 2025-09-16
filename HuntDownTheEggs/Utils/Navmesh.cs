@@ -16,31 +16,9 @@ namespace HuntDownTheEggs.Utils
 {
     public class NavMesh
     {
-        // How to find
-        // 1. Search for `NavAreaBuildPath`
-        // 
-        // Alternative way to find it
-        // 1. It makes use of lot of convars, search for any of these and check where they are used
-        //  * nav_pathfind_debug_log
-        //  * nav_pathfind_draw
-        //  * nav_pathfind_draw_blocked
-        //  * nav_pathfind_draw_fail
-        //  * nav_pathfind_draw_costs
-        //  * nav_pathfind_draw_total_costs
-        //  * nav_pathfind_inadmissable_heuristic_factor
         public static readonly MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, float, float, IntPtr, IntPtr> NavAreaBuildPath = new("55 48 89 E5 41 57 41 56 41 55 49 89 CD 41 54 49 89 D4 53 48 89 FB 48 8D 3D");
-
-        // How to find
-        // 1. Search for `spawnpoints.2v2`
-        // 2. Find where `NavAreaBuildPath` is being called
-        // 3. The 5th argument should be the result of `GetNavPathCost`, find where the variable was set
-        //
-        // Alternative way to find it
-        // 1. It makes use of the `nav_avoid_obstacles` convar, search for it and check where it's used
         public static readonly MemoryFunctionWithReturn<IntPtr> NavPathCost = new("0F B6 05 ? ? ? 01 84 C0 74 1D 80 3D ? ? ? 01 00 74 07 C6 05 ? ? ? 01 00");
-
-        // Thanks to _xstage on the CounterStrikeSharp Discord server for a more reliable solution than using an offset to get the navmesh
-        public static readonly MemoryFunctionWithReturn<nint, bool> CSource2Server_IsValidNavMesh = new("48 8D 05 ? ? ? ? 48 83 38 00 0F 95 C0");
+        public static readonly MemoryFunctionWithReturn<nint, bool> CSource2Server_IsValidNavMesh = new("48 8D 05 ?? ?? ?? ?? 48 83 38 00 0F 95 C0 C3");
 
         public static readonly nint NavMeshPtrAddress = GetNavMeshPtrAddress();
 
@@ -54,160 +32,302 @@ namespace HuntDownTheEggs.Utils
 
         public static CNavMesh? GetNavMesh()
         {
-            nint navMeshAddress = GetNavMeshAddress();
-            if (navMeshAddress == 0)
+            try
             {
+                nint navMeshAddress = GetNavMeshAddress();
+                Console.WriteLine($"[NavMesh Debug] NavMesh address: 0x{navMeshAddress:X}");
+                
+                if (navMeshAddress == 0)
+                {
+                    Console.WriteLine("[NavMesh Debug] NavMesh address is null");
+                    return null;
+                }
+
+                var navMesh = new CNavMesh(navMeshAddress);
+                Console.WriteLine($"[NavMesh Debug] NavMesh created, count: {navMesh.Count}");
+                return navMesh;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[NavMesh Debug] Error getting NavMesh: {ex.Message}");
                 return null;
             }
-
-            return new(navMeshAddress);
         }
 
         public static Vector? GetRandomPosition(int maxAttempts = 10, bool includeOneWayAccessible = false)
         {
-            // NOTE: This assumes every spawn point is accessible to every other
-            Vector? spawnPoint = GetSpawnPoints().FirstOrDefault()?.AbsOrigin;
-            if (spawnPoint == null)
+            Console.WriteLine($"[NavMesh Debug] GetRandomPosition called with maxAttempts: {maxAttempts}");
+            
+            try
             {
+                // Get spawn points first
+                var spawnPoints = GetSpawnPoints();
+                Console.WriteLine($"[NavMesh Debug] Found {spawnPoints.Count} spawn points");
+                
+                if (spawnPoints.Count == 0)
+                {
+                    Console.WriteLine("[NavMesh Debug] No spawn points found");
+                    return null;
+                }
+
+                Vector? spawnPoint = spawnPoints.FirstOrDefault()?.AbsOrigin;
+                if (spawnPoint == null)
+                {
+                    Console.WriteLine("[NavMesh Debug] First spawn point has null AbsOrigin");
+                    return null;
+                }
+
+                Console.WriteLine($"[NavMesh Debug] Using spawn point: {spawnPoint.X}, {spawnPoint.Y}, {spawnPoint.Z}");
+                return GetRandomAccessiblePosition(spawnPoint, maxAttempts, includeOneWayAccessible);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[NavMesh Debug] Exception in GetRandomPosition: {ex.Message}");
+                Console.WriteLine($"[NavMesh Debug] Stack trace: {ex.StackTrace}");
                 return null;
             }
-
-            return GetRandomAccessiblePosition(spawnPoint, maxAttempts, includeOneWayAccessible);
         }
 
-        // Depending on your use-case you might want to pre-generate
-        // all of the accessible areas and just pick from one of those
-        // directly. Just make sure you clear and regenerate the data
-        // at the start of a new map. Preferably you only want to generate
-        // it once as it can be quite expensive depending on the cirumstances,
-        // for instance, on wingman inferno checking for ALL one way accessible
-        // areas takes somewhere around 2 seconds while on other maps it's usually
-        // a few hundred milliseconds.
         public static Vector? GetRandomAccessiblePosition(Vector startPosition, int maxAttempts = 10, bool includeOneWayAccessible = false)
         {
-            CNavMesh? navMesh = GetNavMesh();
-            if (navMesh == null)
+            Console.WriteLine($"[NavMesh Debug] GetRandomAccessiblePosition called from {startPosition.X}, {startPosition.Y}, {startPosition.Z}");
+            
+            try
             {
-                return null;
-            }
-
-            CNavArea? startNavArea = GetClosestNavArea(startPosition);
-            if (startNavArea == null)
-            {
-                return null;
-            }
-
-            for (int i = 0; i < maxAttempts; i++)
-            {
-                CNavArea navArea = navMesh[Random.Shared.Next(navMesh.Count)];
-                // TODO: Filter out nav areas close to blocked areas
-                // because they can be problematic, for instance,
-                // you can spawn inside objects on wingman maps.
-                if (navArea.BlockedTeam != 0)
+                CNavMesh? navMesh = GetNavMesh();
+                if (navMesh == null)
                 {
-                    continue;
+                    Console.WriteLine("[NavMesh Debug] NavMesh is null, trying basic spawn point method");
+                    return TryGetBasicRandomPosition();
                 }
 
-                if (IsAreaAccessible(startNavArea, navArea))
+                Console.WriteLine($"[NavMesh Debug] NavMesh has {navMesh.Count} areas");
+
+                if (navMesh.Count == 0)
                 {
-                    return navArea.Center;
+                    Console.WriteLine("[NavMesh Debug] NavMesh has no areas");
+                    return null;
                 }
 
-                // NOTE: Usually these are boost spots which are not accessible
-                // solo but they can be a bit iffy so use with caution
-                if (includeOneWayAccessible)
+                // Try to find a good nav area without complex pathfinding
+                for (int i = 0; i < maxAttempts; i++)
                 {
-                    if (IsAreaAccessible(navArea, startNavArea))
+                    try
                     {
-                        return navArea.Center;
+                        CNavArea navArea = navMesh[Random.Shared.Next(navMesh.Count)];
+                        Console.WriteLine($"[NavMesh Debug] Attempt {i + 1}: Checking area {navArea.ID}, blocked team: {navArea.BlockedTeam}");
+                        
+                        if (navArea.BlockedTeam != 0)
+                        {
+                            Console.WriteLine($"[NavMesh Debug] Area {navArea.ID} is blocked for team {navArea.BlockedTeam}");
+                            continue;
+                        }
+
+                        // Simple distance check instead of complex pathfinding
+                        float distance = DistanceTo(startPosition, navArea.Center);
+                        Console.WriteLine($"[NavMesh Debug] Distance to area {navArea.ID}: {distance}");
+                        
+                        if (distance < 5000.0f) // Reasonable distance check
+                        {
+                            Console.WriteLine($"[NavMesh Debug] Found valid area {navArea.ID} at {navArea.Center.X}, {navArea.Center.Y}, {navArea.Center.Z}");
+                            return navArea.Center;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[NavMesh Debug] Error in attempt {i + 1}: {ex.Message}");
+                        continue;
                     }
                 }
-            }
 
+                Console.WriteLine("[NavMesh Debug] No accessible areas found within distance, trying any non-blocked area");
+                
+                // Fallback: try any non-blocked area
+                for (int i = 0; i < Math.Min(maxAttempts, navMesh.Count); i++)
+                {
+                    try
+                    {
+                        CNavArea navArea = navMesh[Random.Shared.Next(navMesh.Count)];
+                        if (navArea.BlockedTeam == 0)
+                        {
+                            Console.WriteLine($"[NavMesh Debug] Using fallback area {navArea.ID} at {navArea.Center.X}, {navArea.Center.Y}, {navArea.Center.Z}");
+                            return navArea.Center;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[NavMesh Debug] Error in fallback attempt {i + 1}: {ex.Message}");
+                        continue;
+                    }
+                }
+
+                Console.WriteLine("[NavMesh Debug] All attempts failed");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[NavMesh Debug] Exception in GetRandomAccessiblePosition: {ex.Message}");
+                Console.WriteLine($"[NavMesh Debug] Stack trace: {ex.StackTrace}");
+                return null;
+            }
+        }
+
+        // Basic fallback that doesn't rely on navmesh
+        private static Vector? TryGetBasicRandomPosition()
+        {
+            Console.WriteLine("[NavMesh Debug] Trying basic random position from spawn points");
+            try
+            {
+                var spawnPoints = GetSpawnPoints();
+                if (spawnPoints.Count == 0)
+                {
+                    Console.WriteLine("[NavMesh Debug] No spawn points for basic method");
+                    return null;
+                }
+
+                var randomSpawn = spawnPoints[Random.Shared.Next(spawnPoints.Count)];
+                if (randomSpawn?.AbsOrigin != null)
+                {
+                    // Add some random offset to the spawn point
+                    var pos = randomSpawn.AbsOrigin;
+                    var randomPos = new Vector(
+                        pos.X + Random.Shared.Next(-500, 500),
+                        pos.Y + Random.Shared.Next(-500, 500),
+                        pos.Z + 50 // Slightly above ground
+                    );
+                    Console.WriteLine($"[NavMesh Debug] Generated basic random position: {randomPos.X}, {randomPos.Y}, {randomPos.Z}");
+                    return randomPos;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[NavMesh Debug] Error in basic random position: {ex.Message}");
+            }
             return null;
         }
 
-        // TODO: Fix this, it's not implemented correctly,
-        // if you are already inside a navarea it might not
-        // return the navarea you are inside but another one
-        // which you are closer to the center to
-        /// <summary>
-        /// Caution when using this, it's not as performant as the native
-        /// implementation of GetNearestNavArea because this does not
-        /// make use of the cells.
-        /// </summary>
         public static CNavArea? GetClosestNavArea(Vector position, float maximumDistance = -1)
         {
-            CNavMesh? navMesh = GetNavMesh();
-            if (navMesh == null)
+            Console.WriteLine($"[NavMesh Debug] GetClosestNavArea called for {position.X}, {position.Y}, {position.Z}");
+            
+            try
             {
-                return null;
-            }
-
-            float closestDistance = float.MaxValue;
-            CNavArea? closest = null;
-
-            foreach (CNavArea navArea in navMesh)
-            {
-                float distance = DistanceTo(position, navArea.Center);
-                if (distance < closestDistance)
+                CNavMesh? navMesh = GetNavMesh();
+                if (navMesh == null)
                 {
-                    closestDistance = distance;
-                    closest = navArea;
+                    Console.WriteLine("[NavMesh Debug] NavMesh is null in GetClosestNavArea");
+                    return null;
                 }
-            }
 
-            if (maximumDistance > 0 && closestDistance > maximumDistance)
+                float closestDistance = float.MaxValue;
+                CNavArea? closest = null;
+
+                int checkedAreas = 0;
+                foreach (CNavArea navArea in navMesh)
+                {
+                    try
+                    {
+                        float distance = DistanceTo(position, navArea.Center);
+                        if (distance < closestDistance)
+                        {
+                            closestDistance = distance;
+                            closest = navArea;
+                        }
+                        checkedAreas++;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[NavMesh Debug] Error checking nav area: {ex.Message}");
+                        continue;
+                    }
+                }
+
+                Console.WriteLine($"[NavMesh Debug] Checked {checkedAreas} areas, closest distance: {closestDistance}");
+
+                if (maximumDistance > 0 && closestDistance > maximumDistance)
+                {
+                    Console.WriteLine($"[NavMesh Debug] Closest area is too far: {closestDistance} > {maximumDistance}");
+                    return null;
+                }
+
+                if (closest != null)
+                {
+                    Console.WriteLine($"[NavMesh Debug] Found closest area {closest.ID} at distance {closestDistance}");
+                }
+
+                return closest;
+            }
+            catch (Exception ex)
             {
+                Console.WriteLine($"[NavMesh Debug] Exception in GetClosestNavArea: {ex.Message}");
                 return null;
             }
-
-            return closest;
         }
 
-        public static unsafe bool IsAreaAccessible(CNavArea startNavArea, CNavArea? goalNavArea = null, Vector? startPosition = null, Vector? goalPosition = null)
+        // Simple version without NavPathCost
+        public static bool IsAreaAccessible(CNavArea startNavArea, CNavArea? goalNavArea = null, Vector? startPosition = null, Vector? goalPosition = null)
         {
-            nint navPathCost = NavPathCost.Invoke();
-
-            // TODO: Not sure how many bytes this needs.
-            // 
-            // It seems to return an address to a CNavArea
-            // and a distance, the distance is only non-zero
-            // if the goal is in any nav area. I am guessing
-            // it returns the CNavArea, along with the distance,
-            // of the closest navarea.
-            fixed (byte* unk = new byte[32])
-            {
-                float distance = 0.0f;
-
-                // Doesn't seem to work without the start nav area
-                nint startNavAreaPtr = startNavArea.Handle;
-                nint goalNavAreaPtr = goalNavArea?.Handle ?? 0;
-
-                nint startPositionPtr = startPosition?.Handle ?? 0;
-                nint goalPositionPtr = goalPosition?.Handle ?? 0;
-
-                NavAreaBuildPath.Invoke(startNavAreaPtr, goalNavAreaPtr, startPositionPtr, goalPositionPtr, navPathCost, (nint)unk, -1.0f, -1.0f, (nint)(void*)&distance);
-                return distance >= 0;
-            }
+            // Simple fallback - assume areas are accessible if they're not blocked and within reasonable distance
+            if (goalNavArea == null) return true;
+            if (goalNavArea.BlockedTeam != 0) return false;
+            
+            float distance = DistanceTo(startNavArea.Center, goalNavArea.Center);
+            return distance < 3000.0f; // Adjust this distance as needed
         }
 
         private static List<SpawnPoint> GetSpawnPoints()
         {
-            // TODO: You probably want to cache this
-            CCSGameRules? gameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules")
-                .FirstOrDefault()?
-                .GameRules;
-
-            if (gameRules == null)
+            try
             {
+                Console.WriteLine("[NavMesh Debug] Getting spawn points...");
+                
+                var gameRulesProxies = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules");
+                Console.WriteLine($"[NavMesh Debug] Found {gameRulesProxies.Count()} game rules proxies");
+
+                CCSGameRules? gameRules = gameRulesProxies.FirstOrDefault()?.GameRules;
+                
+                if (gameRules == null)
+                {
+                    Console.WriteLine("[NavMesh Debug] GameRules is null");
+                    return [];
+                }
+
+                Console.WriteLine("[NavMesh Debug] GameRules found, getting spawn points");
+
+                List<SpawnPoint> spawnPoints = [];
+                
+                try
+                {
+                    var ctSpawns = GetVectorPtrElements(gameRules.CTSpawnPoints);
+                    var ctCount = ctSpawns.Count();
+                    Console.WriteLine($"[NavMesh Debug] Found {ctCount} CT spawn points");
+                    spawnPoints.AddRange(ctSpawns);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[NavMesh Debug] Error getting CT spawns: {ex.Message}");
+                }
+
+                try
+                {
+                    var tSpawns = GetVectorPtrElements(gameRules.TerroristSpawnPoints);
+                    var tCount = tSpawns.Count();
+                    Console.WriteLine($"[NavMesh Debug] Found {tCount} T spawn points");
+                    spawnPoints.AddRange(tSpawns);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[NavMesh Debug] Error getting T spawns: {ex.Message}");
+                }
+
+                Console.WriteLine($"[NavMesh Debug] Total spawn points: {spawnPoints.Count}");
+                return spawnPoints;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[NavMesh Debug] Exception in GetSpawnPoints: {ex.Message}");
                 return [];
             }
-
-            List<SpawnPoint> spawnPoints = [];
-            spawnPoints.AddRange(GetVectorPtrElements(gameRules.CTSpawnPoints));
-            spawnPoints.AddRange(GetVectorPtrElements(gameRules.TerroristSpawnPoints));
-            return spawnPoints;
         }
 
         private static float DistanceTo(Vector a, Vector b) => MathF.Sqrt(MathF.Pow(a.X - b.X, 2) + MathF.Pow(a.Y - b.Y, 2) + MathF.Pow(a.Z - b.Z, 2));
@@ -282,13 +402,12 @@ namespace HuntDownTheEggs.Utils
         public byte BlockedTeam => Marshal.ReadByte(Handle + 92);
     }
 
-    // Thanks to nuko8964 on the CounterStrikeSharp Discord server for the suggestion
     public static class IntPtrExtension
     {
         public static nint Rel(this nint address, int offset)
         {
             int relativeOffset = Marshal.ReadInt32(address + offset);
-            return address + relativeOffset + offset + sizeof(int) /* The size of the relative offset */;
+            return address + relativeOffset + offset + sizeof(int);
         }
     }
 }
