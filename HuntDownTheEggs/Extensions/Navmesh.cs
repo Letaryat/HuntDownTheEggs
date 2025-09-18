@@ -22,7 +22,15 @@ namespace HuntDownTheEggs.Extensions
             return functionAddress.Rel(3);
         }
 
-        public static nint GetNavMeshAddress() => Marshal.ReadIntPtr(NavMeshPtrAddress);
+        public static unsafe nint GetNavMeshAddress()
+        {
+            nint func = *(nint*)CSource2Server_IsValidNavMesh.Handle;
+
+            nint relativeAddress = *(int*)(func + 3);
+            nint result = *(nint*)(func + relativeAddress + 7);
+
+            return result;
+        }
 
         public static CNavMesh? GetNavMesh()
         {
