@@ -10,17 +10,123 @@ namespace HuntDownTheEggs.Extensions
 {
     public class NavMesh
     {
-        public static readonly MemoryFunctionWithReturn<nint, bool> CSource2Server_IsValidNavMesh = new("48 8D 05 ?? ?? ?? ?? 48 83 38 00 0F 95 C0 C3");
+        // Try multiple alternative signatures for CSource2Server_IsValidNavMesh
+        private static readonly string[] IsValidNavMeshSignatures = new[]
+        {
+            //"48 8D 05 ?? ?? ?? ?? 48 83 38 ?? 0F 95 C0 C3",  // Different null check
+            "48 8D 05 ?? ?? ?? ?? 48 83 38 00 0F 95 C0",  // Different flag
+            //"48 8D 05 ? ? ? ? 48 83 38 00 0F 95 C0 C3",      // Single byte wildcards
+        };
 
-        public static readonly nint NavMeshPtrAddress = GetNavMeshPtrAddress();
+        // Try multiple NavAreaBuildPath signatures
+        private static readonly string[] NavAreaBuildPathSignatures = new[]
+        {
+            "55 48 89 E5 41 57 41 56 41 55 49 89 CD 41 54 49 89 D4 53 48 89 FB 48 8D 3D", // Original
+            "55 48 89 E5 41 57 41 56 41 55 49 89 CD 41 54 49 89 D4 53 48 89 FB",           // Shorter
+            "48 89 E5 41 57 41 56 41 55 49 89 CD 41 54 49 89 D4 53 48 89 FB 48 8D 3D",     // Without 55
+            "55 48 89 E5 41 57 41 56 41 55 49 89 CD 41 54 49 89 D4 53",                    // Even shorter
+        };
+
+        private static MemoryFunctionWithReturn<nint, bool>? _workingIsValidNavMesh;
+        private static MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, float, float, IntPtr, IntPtr>? _workingNavAreaBuildPath;
+        private static bool _signaturesSearched = false;
+
+        public static readonly MemoryFunctionWithReturn<IntPtr> NavPathCost = new("0F B6 05 ? ? ? 01 84 C0 74 1D 80 3D ? ? ? 01 00 74 07 C6 05 ? ? ? 01 00");
+
+        private static nint? _navMeshPtrAddress;
+
+        private static void FindWorkingSignatures()
+        {
+            if (_signaturesSearched) return;
+            _signaturesSearched = true;
+
+            Console.WriteLine("[NavMesh Debug] Searching for working signatures...");
+
+            // Try to find working IsValidNavMesh signature
+            foreach (var signature in IsValidNavMeshSignatures)
+            {
+                try
+                {
+                    var func = new MemoryFunctionWithReturn<nint, bool>(signature);
+                    if (func.Handle != IntPtr.Zero)
+                    {
+                        Console.WriteLine($"[NavMesh Debug] Found working IsValidNavMesh signature: {signature}");
+                        _workingIsValidNavMesh = func;
+                        break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[NavMesh Debug] IsValidNavMesh signature failed: {signature} - {ex.Message}");
+                }
+            }
+
+            // Try to find working NavAreaBuildPath signature
+            foreach (var signature in NavAreaBuildPathSignatures)
+            {
+                try
+                {
+                    var func = new MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, float, float, IntPtr, IntPtr>(signature);
+                    if (func.Handle != IntPtr.Zero)
+                    {
+                        Console.WriteLine($"[NavMesh Debug] Found working NavAreaBuildPath signature: {signature}");
+                        _workingNavAreaBuildPath = func;
+                        break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[NavMesh Debug] NavAreaBuildPath signature failed: {signature} - {ex.Message}");
+                }
+            }
+
+            if (_workingIsValidNavMesh == null)
+            {
+                Console.WriteLine("[NavMesh Debug] No working IsValidNavMesh signature found!");
+            }
+
+            if (_workingNavAreaBuildPath == null)
+            {
+                Console.WriteLine("[NavMesh Debug] No working NavAreaBuildPath signature found!");
+            }
+        }
 
         public static nint GetNavMeshPtrAddress()
         {
-            nint functionAddress = Marshal.ReadIntPtr(CSource2Server_IsValidNavMesh.Handle);
-            return functionAddress.Rel(3);
+            FindWorkingSignatures();
+
+            if (_navMeshPtrAddress.HasValue)
+                return _navMeshPtrAddress.Value;
+
+            if (_workingIsValidNavMesh == null)
+            {
+                Console.WriteLine("[NavMesh Debug] Cannot get NavMeshPtrAddress - no working signature");
+                _navMeshPtrAddress = 0;
+                return 0;
+            }
+
+            try
+            {
+                nint functionAddress = Marshal.ReadIntPtr(_workingIsValidNavMesh.Handle);
+                _navMeshPtrAddress = functionAddress.Rel(3);
+                Console.WriteLine($"[NavMesh Debug] NavMeshPtrAddress: 0x{_navMeshPtrAddress.Value:X}");
+                return _navMeshPtrAddress.Value;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[NavMesh Debug] Error getting NavMeshPtrAddress: {ex.Message}");
+                _navMeshPtrAddress = 0;
+                return 0;
+            }
         }
 
-        public static nint GetNavMeshAddress() => Marshal.ReadIntPtr(NavMeshPtrAddress);
+        public static nint GetNavMeshAddress()
+        {
+            var ptrAddress = GetNavMeshPtrAddress();
+            if (ptrAddress == 0) return 0;
+            
+            return Marshal.ReadIntPtr(ptrAddress);
+        }
 
         public static CNavMesh? GetNavMesh()
         {
@@ -46,38 +152,84 @@ namespace HuntDownTheEggs.Extensions
             }
         }
 
+        // Fallback method that doesn't use navmesh at all - just spawn around existing spawn points
+        public static Vector? GetRandomPositionFallback()
+        {
+            Console.WriteLine("[NavMesh Debug] Using complete fallback method");
+            try
+            {
+                var spawnPoints = GetSpawnPoints();
+                if (spawnPoints.Count == 0)
+                {
+                    Console.WriteLine("[NavMesh Debug] No spawn points for fallback");
+                    return null;
+                }
+
+                var randomSpawn = spawnPoints[Random.Shared.Next(spawnPoints.Count)];
+                if (randomSpawn?.AbsOrigin != null)
+                {
+                    var pos = randomSpawn.AbsOrigin;
+                    var randomPos = new Vector(
+                        pos.X + Random.Shared.Next(-800, 800),
+                        pos.Y + Random.Shared.Next(-800, 800),
+                        pos.Z + Random.Shared.Next(10, 100)
+                    );
+                    Console.WriteLine($"[NavMesh Debug] Generated fallback position: {randomPos.X}, {randomPos.Y}, {randomPos.Z}");
+                    return randomPos;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[NavMesh Debug] Error in fallback method: {ex.Message}");
+            }
+            return null;
+        }
+
         public static Vector? GetRandomPosition(int maxAttempts = 10, bool includeOneWayAccessible = false)
         {
             Console.WriteLine($"[NavMesh Debug] GetRandomPosition called with maxAttempts: {maxAttempts}");
             
             try
             {
-                // Get spawn points first
-                var spawnPoints = GetSpawnPoints();
-                Console.WriteLine($"[NavMesh Debug] Found {spawnPoints.Count} spawn points");
-                
-                if (spawnPoints.Count == 0)
+                // First try to get navmesh-based position
+                var navMeshPos = TryGetNavMeshBasedPosition(maxAttempts, includeOneWayAccessible);
+                if (navMeshPos != null)
                 {
-                    Console.WriteLine("[NavMesh Debug] No spawn points found");
-                    return null;
+                    return navMeshPos;
                 }
 
-                Vector? spawnPoint = spawnPoints.FirstOrDefault()?.AbsOrigin;
-                if (spawnPoint == null)
-                {
-                    Console.WriteLine("[NavMesh Debug] First spawn point has null AbsOrigin");
-                    return null;
-                }
-
-                Console.WriteLine($"[NavMesh Debug] Using spawn point: {spawnPoint.X}, {spawnPoint.Y}, {spawnPoint.Z}");
-                return GetRandomAccessiblePosition(spawnPoint, maxAttempts, includeOneWayAccessible);
+                // Fall back to spawn point based positioning
+                Console.WriteLine("[NavMesh Debug] NavMesh failed, trying fallback method");
+                return GetRandomPositionFallback();
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"[NavMesh Debug] Exception in GetRandomPosition: {ex.Message}");
-                Console.WriteLine($"[NavMesh Debug] Stack trace: {ex.StackTrace}");
+                return GetRandomPositionFallback();
+            }
+        }
+
+        private static Vector? TryGetNavMeshBasedPosition(int maxAttempts, bool includeOneWayAccessible)
+        {
+            // Get spawn points first
+            var spawnPoints = GetSpawnPoints();
+            Console.WriteLine($"[NavMesh Debug] Found {spawnPoints.Count} spawn points");
+            
+            if (spawnPoints.Count == 0)
+            {
+                Console.WriteLine("[NavMesh Debug] No spawn points found");
                 return null;
             }
+
+            Vector? spawnPoint = spawnPoints.FirstOrDefault()?.AbsOrigin;
+            if (spawnPoint == null)
+            {
+                Console.WriteLine("[NavMesh Debug] First spawn point has null AbsOrigin");
+                return null;
+            }
+
+            Console.WriteLine($"[NavMesh Debug] Using spawn point: {spawnPoint.X}, {spawnPoint.Y}, {spawnPoint.Z}");
+            return GetRandomAccessiblePosition(spawnPoint, maxAttempts, includeOneWayAccessible);
         }
 
         public static Vector? GetRandomAccessiblePosition(Vector startPosition, int maxAttempts = 10, bool includeOneWayAccessible = false)
@@ -108,13 +260,13 @@ namespace HuntDownTheEggs.Extensions
                     {
                         CNavArea navArea = navMesh[Random.Shared.Next(navMesh.Count)];
                         Console.WriteLine($"[NavMesh Debug] Attempt {i + 1}: Checking area {navArea.ID}, blocked team: {navArea.BlockedTeam}");
-                        /*
+                        
                         if (navArea.BlockedTeam != 0)
                         {
                             Console.WriteLine($"[NavMesh Debug] Area {navArea.ID} is blocked for team {navArea.BlockedTeam}");
                             continue;
                         }
-                        */
+
                         // Simple distance check instead of complex pathfinding
                         float distance = DistanceTo(startPosition, navArea.Center);
                         Console.WriteLine($"[NavMesh Debug] Distance to area {navArea.ID}: {distance}");
@@ -168,36 +320,10 @@ namespace HuntDownTheEggs.Extensions
         private static Vector? TryGetBasicRandomPosition()
         {
             Console.WriteLine("[NavMesh Debug] Trying basic random position from spawn points");
-            try
-            {
-                var spawnPoints = GetSpawnPoints();
-                if (spawnPoints.Count == 0)
-                {
-                    Console.WriteLine("[NavMesh Debug] No spawn points for basic method");
-                    return null;
-                }
-
-                var randomSpawn = spawnPoints[Random.Shared.Next(spawnPoints.Count)];
-                if (randomSpawn?.AbsOrigin != null)
-                {
-                    // Add some random offset to the spawn point
-                    var pos = randomSpawn.AbsOrigin;
-                    var randomPos = new Vector(
-                        pos.X + Random.Shared.Next(-500, 500),
-                        pos.Y + Random.Shared.Next(-500, 500),
-                        pos.Z + 50 // Slightly above ground
-                    );
-                    Console.WriteLine($"[NavMesh Debug] Generated basic random position: {randomPos.X}, {randomPos.Y}, {randomPos.Z}");
-                    return randomPos;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[NavMesh Debug] Error in basic random position: {ex.Message}");
-            }
-            return null;
+            return GetRandomPositionFallback();
         }
 
+        // Rest of the methods remain the same...
         public static CNavArea? GetClosestNavArea(Vector position, float maximumDistance = -1)
         {
             Console.WriteLine($"[NavMesh Debug] GetClosestNavArea called for {position.X}, {position.Y}, {position.Z}");
@@ -256,15 +382,13 @@ namespace HuntDownTheEggs.Extensions
             }
         }
 
-        // Simple version without NavPathCost
         public static bool IsAreaAccessible(CNavArea startNavArea, CNavArea? goalNavArea = null, Vector? startPosition = null, Vector? goalPosition = null)
         {
-            // Simple fallback - assume areas are accessible if they're not blocked and within reasonable distance
             if (goalNavArea == null) return true;
             if (goalNavArea.BlockedTeam != 0) return false;
             
             float distance = DistanceTo(startNavArea.Center, goalNavArea.Center);
-            return distance < 3000.0f; // Adjust this distance as needed
+            return distance < 3000.0f;
         }
 
         private static List<SpawnPoint> GetSpawnPoints()
@@ -356,6 +480,7 @@ namespace HuntDownTheEggs.Extensions
         }
     }
 
+    // Classes remain the same...
     public class CNavMesh(nint pointer) : NativeObject(pointer), IReadOnlyCollection<CNavArea>
     {
         public int Count => Marshal.ReadInt32(Handle + 8);

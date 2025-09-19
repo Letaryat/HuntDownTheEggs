@@ -10,8 +10,10 @@ namespace HuntDownTheEggs.Extensions
 {
     public class NavMesh
     {
-        public static readonly MemoryFunctionWithReturn<nint, bool> CSource2Server_IsValidNavMesh = new("48 8D 05 ?? ?? ?? ?? 48 83 38 00 0F 95 C0 C3");
-
+        public static readonly MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, float, float, IntPtr, IntPtr> NavAreaBuildPath = new("55 48 89 E5 41 57 41 56 41 55 49 89 CD 41 54 49 89 D4 53 48 89 FB 48 8D 3D");
+        public static readonly MemoryFunctionWithReturn<IntPtr> NavPathCost = new("0F B6 05 ? ? ? 01 84 C0 74 1D 80 3D ? ? ? 01 00 74 07 C6 05 ? ? ? 01 00");
+        //public static readonly MemoryFunctionWithReturn<nint, bool> CSource2Server_IsValidNavMesh = new("48 8D 05 D9 4D E7 00 48 83 38 00 0F 95 C0");
+        public static readonly MemoryFunctionWithReturn<nint, bool> CSource2Server_IsValidNavMesh = new("48 8D 05 D9 4D E7 00 48 83 38 00 0F 95 C0");
         public static readonly nint NavMeshPtrAddress = GetNavMeshPtrAddress();
 
         public static nint GetNavMeshPtrAddress()
@@ -20,7 +22,15 @@ namespace HuntDownTheEggs.Extensions
             return functionAddress.Rel(3);
         }
 
-        public static nint GetNavMeshAddress() => Marshal.ReadIntPtr(NavMeshPtrAddress);
+        public static unsafe nint GetNavMeshAddress()
+        {
+            nint func = *(nint*)CSource2Server_IsValidNavMesh.Handle;
+
+            nint relativeAddress = *(int*)(func + 3);
+            nint result = *(nint*)(func + relativeAddress + 7);
+
+            return result;
+        }
 
         public static CNavMesh? GetNavMesh()
         {
@@ -28,7 +38,7 @@ namespace HuntDownTheEggs.Extensions
             {
                 nint navMeshAddress = GetNavMeshAddress();
                 Console.WriteLine($"[NavMesh Debug] NavMesh address: 0x{navMeshAddress:X}");
-                
+
                 if (navMeshAddress == 0)
                 {
                     Console.WriteLine("[NavMesh Debug] NavMesh address is null");
@@ -46,16 +56,16 @@ namespace HuntDownTheEggs.Extensions
             }
         }
 
-        public static Vector? GetRandomPosition(int maxAttempts = 10, bool includeOneWayAccessible = false)
+        public static Vector? GetRandomPosition(int maxAttempts = 100, bool includeOneWayAccessible = false)
         {
             Console.WriteLine($"[NavMesh Debug] GetRandomPosition called with maxAttempts: {maxAttempts}");
-            
+
             try
             {
                 // Get spawn points first
                 var spawnPoints = GetSpawnPoints();
                 Console.WriteLine($"[NavMesh Debug] Found {spawnPoints.Count} spawn points");
-                
+
                 if (spawnPoints.Count == 0)
                 {
                     Console.WriteLine("[NavMesh Debug] No spawn points found");
@@ -80,10 +90,10 @@ namespace HuntDownTheEggs.Extensions
             }
         }
 
-        public static Vector? GetRandomAccessiblePosition(Vector startPosition, int maxAttempts = 10, bool includeOneWayAccessible = false)
+        public static Vector? GetRandomAccessiblePosition(Vector startPosition, int maxAttempts = 100, bool includeOneWayAccessible = false)
         {
             Console.WriteLine($"[NavMesh Debug] GetRandomAccessiblePosition called from {startPosition.X}, {startPosition.Y}, {startPosition.Z}");
-            
+
             try
             {
                 CNavMesh? navMesh = GetNavMesh();
@@ -108,17 +118,17 @@ namespace HuntDownTheEggs.Extensions
                     {
                         CNavArea navArea = navMesh[Random.Shared.Next(navMesh.Count)];
                         Console.WriteLine($"[NavMesh Debug] Attempt {i + 1}: Checking area {navArea.ID}, blocked team: {navArea.BlockedTeam}");
-                        /*
+
                         if (navArea.BlockedTeam != 0)
                         {
                             Console.WriteLine($"[NavMesh Debug] Area {navArea.ID} is blocked for team {navArea.BlockedTeam}");
                             continue;
                         }
-                        */
+
                         // Simple distance check instead of complex pathfinding
                         float distance = DistanceTo(startPosition, navArea.Center);
                         Console.WriteLine($"[NavMesh Debug] Distance to area {navArea.ID}: {distance}");
-                        
+
                         if (distance < 5000.0f) // Reasonable distance check
                         {
                             Console.WriteLine($"[NavMesh Debug] Found valid area {navArea.ID} at {navArea.Center.X}, {navArea.Center.Y}, {navArea.Center.Z}");
@@ -133,7 +143,7 @@ namespace HuntDownTheEggs.Extensions
                 }
 
                 Console.WriteLine("[NavMesh Debug] No accessible areas found within distance, trying any non-blocked area");
-                
+
                 // Fallback: try any non-blocked area
                 for (int i = 0; i < Math.Min(maxAttempts, navMesh.Count); i++)
                 {
@@ -201,7 +211,7 @@ namespace HuntDownTheEggs.Extensions
         public static CNavArea? GetClosestNavArea(Vector position, float maximumDistance = -1)
         {
             Console.WriteLine($"[NavMesh Debug] GetClosestNavArea called for {position.X}, {position.Y}, {position.Z}");
-            
+
             try
             {
                 CNavMesh? navMesh = GetNavMesh();
@@ -262,7 +272,7 @@ namespace HuntDownTheEggs.Extensions
             // Simple fallback - assume areas are accessible if they're not blocked and within reasonable distance
             if (goalNavArea == null) return true;
             if (goalNavArea.BlockedTeam != 0) return false;
-            
+
             float distance = DistanceTo(startNavArea.Center, goalNavArea.Center);
             return distance < 3000.0f; // Adjust this distance as needed
         }
@@ -272,12 +282,12 @@ namespace HuntDownTheEggs.Extensions
             try
             {
                 Console.WriteLine("[NavMesh Debug] Getting spawn points...");
-                
+
                 var gameRulesProxies = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules");
                 Console.WriteLine($"[NavMesh Debug] Found {gameRulesProxies.Count()} game rules proxies");
 
                 CCSGameRules? gameRules = gameRulesProxies.FirstOrDefault()?.GameRules;
-                
+
                 if (gameRules == null)
                 {
                     Console.WriteLine("[NavMesh Debug] GameRules is null");
@@ -287,7 +297,7 @@ namespace HuntDownTheEggs.Extensions
                 Console.WriteLine("[NavMesh Debug] GameRules found, getting spawn points");
 
                 List<SpawnPoint> spawnPoints = [];
-                
+
                 try
                 {
                     var ctSpawns = GetVectorPtrElements(gameRules.CTSpawnPoints);
