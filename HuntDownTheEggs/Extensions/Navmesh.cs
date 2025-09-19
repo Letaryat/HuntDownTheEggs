@@ -1,3 +1,9 @@
+/*
+*  This is a modified version of https://gist.github.com/21Joakim/6a264623e4ac8ae217e0eb15fc43e3e5#file-navmesh-cs
+*  It works without NavPathCost and NavAreaBuildPath to get random positions on the map.
+*  Don't even expect me to know what is happening here since I barely understand it myself. It was modified by ClaudeAI till it started to work.
+*/
+
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API;
