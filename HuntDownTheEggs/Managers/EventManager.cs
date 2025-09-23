@@ -181,7 +181,7 @@ namespace HuntDownTheEggs
 
         private HookResult OnTriggerTouch(CEntityIOOutput output, string name, CEntityInstance activator, CEntityInstance caller, CVariant value, float delay)
         {
-            if(_plugin.Config.ShootEggMode) return HookResult.Continue;
+            if (_plugin.Config.ShootEggMode) return HookResult.Continue;
             // Check if the activator is a valid player
             var pawn = activator.As<CCSPlayerPawn>();
             if (pawn == null || !pawn.IsValid)
@@ -301,7 +301,7 @@ namespace HuntDownTheEggs
             {
                 manifest.AddResource(_plugin.Config.TriggerModel);
             }
-                
+
         }
         private void OnCheckTransmit(CCheckTransmitInfoList infoList)
         {
@@ -454,7 +454,11 @@ namespace HuntDownTheEggs
                 {
                     dynamicProp.Health -= (int)Math.Round(damageinfo.Damage);
 
-                    player.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["eggShotHP", dynamicProp.Health]}");
+                    if (dynamicProp.Health > 0)
+                    {
+                        player.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["eggShotHP", dynamicProp.Health]}");
+                    }
+
 
                     _plugin.EggManager!.RemoveEntityOnShoot(dynamicProp, entities, player, 0);
                     return HookResult.Continue;
@@ -473,10 +477,13 @@ namespace HuntDownTheEggs
                     player.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["alreadyOwn"]}");
                     return HookResult.Continue;
                 }
-                
+
                 dynamicProp.Health -= (int)Math.Round(damageinfo.Damage);
-                
-                player.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["eggShotHP", dynamicProp.Health]}");
+
+                if (dynamicProp.Health > 0)
+                {
+                    player.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["eggShotHP", dynamicProp.Health]}");
+                }
                 _plugin.EggManager.RemoveEntityOnShoot(dynamicProp, entities, player, 1);
 
             }
