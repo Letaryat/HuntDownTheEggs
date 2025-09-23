@@ -10,6 +10,7 @@
     "topListHeader": "{green}************{lightyellow}[TOPLIST]{green}************\n{default}",
     "topKillEggsListHeader": "{green}************{lightyellow}[TOP KILL EGGS]{green}************\n{default}",
     "topListPlayer": "{lightyellow}{green}{0}. {orange}{1} {green}- {lightyellow}{2}",
-    "noEggsFound": "{red}Nie znaleziono żadnych jajek!",
+    "noEggsFound": "{red}No eggs found!",
+    "eggShotHP": "Egg have {red}{0}{default} HP",
     "recievedDesc.Punkty_sklepu": "Example of description of received custom reward in Config"
 }

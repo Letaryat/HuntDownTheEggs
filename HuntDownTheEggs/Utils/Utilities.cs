@@ -42,7 +42,7 @@ namespace HuntDownTheEggs.Utils
                 return;
 
             CDynamicProp glow = Utilities.CreateEntityByName<CDynamicProp>("prop_dynamic")!;
-            glow.Spawnflags = 256;
+            glow.Spawnflags = 0;
             glow.Render = Color.Transparent;
             glow.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(glow.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
             glow.SetModel(entity.CBodyComponent!.SceneNode!.GetSkeletonInstance().ModelState.ModelName);
@@ -55,8 +55,8 @@ namespace HuntDownTheEggs.Utils
             glow.Glow.GlowType = 3;
 
             glow.Teleport(entity.AbsOrigin, entity.AbsRotation, entity.AbsVelocity);
+
             glow.AcceptInput("SetParent", entity, glow, "!activator");
         }
-
     }
 }

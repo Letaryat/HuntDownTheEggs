@@ -11,5 +11,6 @@
   "topKillEggsListHeader": "{green}************{lightyellow}[TOP LISTA JAJEK ZABOJSTW]{green}************\n{default}",
   "topListPlayer": "{lightyellow}{green}{0}. {orange}{1} {green}- {lightyellow}{2}",
   "noEggsFound": "{red}Nie znaleziono żadnych jajek!",
+  "eggShotHP": "Jajeczkowi zostalo {red}{0}{default} HP",
   "recievedDesc.Punkty_sklepu": "Przykład opisu uzyskanej nagrody z configu"
 }

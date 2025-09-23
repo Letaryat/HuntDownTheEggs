@@ -12,6 +12,9 @@ namespace HuntDownTheEggs.Core
         [JsonPropertyName("EggModel")]
         public string EggModel { get; set; } = "models/chicken/chicken.vmdl";
 
+        [JsonPropertyName("TriggerModel")]
+        public string TriggerModel { get; set; } = "models/chicken/chicken.vmdl";
+
         [JsonPropertyName("EggAnimation")]
         public string EggAnimation { get; set; } = "challenge_coin_idle";
 
@@ -41,6 +44,12 @@ namespace HuntDownTheEggs.Core
 
         [JsonPropertyName("SearchMode")]
         public bool SearchMode { get; set; } = true;
+
+        [JsonPropertyName("ShootEggMode")]
+        public bool ShootEggMode { get; set; } = true;
+
+        [JsonPropertyName("ShootEggHealth")]
+        public int ShootEggHealth = 100;
 
         [JsonPropertyName("SpawnDeathEggOnVictim")]
         public bool SpawnDeathEggOnVictim { get; set; } = true;

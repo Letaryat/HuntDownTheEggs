@@ -1,6 +1,7 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Translations;
+using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
 using HuntDownTheEggs.Core;
 using HuntDownTheEggs.Extensions;
@@ -16,7 +17,8 @@ namespace HuntDownTheEggs
     public class EggManager
     {
         private readonly HuntDownTheEggsPlugin _plugin;
-        private readonly Dictionary<uint, CDynamicProp> _eggEntities = [];
+        public readonly Dictionary<uint, CDynamicProp> _eggEntities = [];
+        public List<CDynamicProp> _testEggsEntities = [];
         private readonly List<EggData> _eggs = [];
         public string _mapName;
         public string _mapFilePath;
@@ -74,8 +76,8 @@ namespace HuntDownTheEggs
                         _plugin.DebugLog($"Failed to get {randomPos}. Times: {i}");
                         continue;
                     }
-                    
-                    SpawnEgg(new Vector(randomPos.X, randomPos.Y, randomPos.Z), "default", "$kill_random");
+
+                    SpawnEgg(new Vector(randomPos.X, randomPos.Y, randomPos.Z), "default", "$kill_egg_random");
                     _plugin.DebugLog($"Spawned egg on: {randomPos.X} {randomPos.Y} {randomPos.Z}");
                 }
             }
@@ -155,7 +157,15 @@ namespace HuntDownTheEggs
 
         public void SpawnEgg(Vector position, string? color, string name)
         {
-            var entity = Utilities.CreateEntityByName<CDynamicProp>("prop_dynamic");
+            var entity = Utilities.CreateEntityByName<CDynamicProp>("prop_dynamic_override");
+
+            if (_plugin.Config.ShootEggMode)
+            {
+                entity!.Collision.CollisionGroup = (byte)CollisionGroup.COLLISION_GROUP_WEAPON;
+                entity.Collision.SolidType = SolidType_t.SOLID_VPHYSICS;
+                entity!.TakesDamage = true;
+            }
+
 
             if (color == null)
             {
@@ -197,6 +207,13 @@ namespace HuntDownTheEggs
 
             entity!.DispatchSpawn();
 
+            if (_plugin.Config.ShootEggMode)
+            {
+                entity.Health = _plugin.Config.ShootEggHealth;
+                entity.MaxHealth = _plugin.Config.ShootEggHealth;
+                Utilities.SetStateChanged(entity, "CBaseEntity", "m_iHealth");
+            }
+
             entity.Teleport(position);
 
             entity.UseAnimGraph = false;
@@ -214,6 +231,7 @@ namespace HuntDownTheEggs
             entity.Entity!.Name = $"pack-{name}";
 
             // Apply glow if enabled
+
             if (_plugin.Config.Glowing)
             {
                 if (Enum.TryParse<KnownColor>(_plugin.Config.GlowingColor, true, out var knownColor))
@@ -225,6 +243,12 @@ namespace HuntDownTheEggs
                 {
                     PluginUtilities.SetGlowOnEntity(entity, Color.Green, _plugin.Config.GlowingRange);
                 }
+            }
+
+            if (_plugin.Config.ShootEggMode)
+            {
+                _testEggsEntities.Add(entity);
+                return;
             }
 
             // Create trigger for egg
@@ -381,6 +405,12 @@ namespace HuntDownTheEggs
             }
         }
 
+        public void RemoveEggEntityOnShoot(CDynamicProp entity)
+        {
+            entity.Remove();
+
+        }
+
         public int GetEggCount()
         {
             return _eggs.Count;
@@ -453,14 +483,23 @@ namespace HuntDownTheEggs
             }
 
             trigger.Entity!.Name = entity.Entity!.Name + "_trigger";
-            trigger.Spawnflags = 1;
+            trigger.Spawnflags = (1 << 0) | (1 << 1); // Touch and Use
             trigger.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags &= ~(uint)(1 << 2);
             trigger.Collision.SolidType = SolidType_t.SOLID_VPHYSICS;
             trigger.Collision.SolidFlags = 0;
             trigger.Collision.CollisionGroup = 14;
 
             trigger.DispatchSpawn();
-            trigger.SetModel(_plugin.Config.EggModel);
+
+            if (_plugin.Config.TriggerModel != _plugin.Config.EggModel || !string.IsNullOrEmpty(_plugin.Config.TriggerModel))
+            {
+                trigger.SetModel(_plugin.Config.TriggerModel);
+            }
+            else
+            {
+                trigger.SetModel(_plugin.Config.EggModel);
+            }
+
             trigger.CBodyComponent.SceneNode.GetSkeletonInstance().Scale = _plugin.Config.EggModelScale;
             trigger.Teleport(position);
             trigger.AcceptInput("SetParent", entity, trigger, "!activator");
@@ -475,5 +514,32 @@ namespace HuntDownTheEggs
 
             _eggEntities.Add(trigger.Index, entity);
         }
+
+        public void RemoveEntityOnShoot(CDynamicProp dynamicprop, CEntityInstance entities, CCSPlayerController player, int eggType)
+        {
+            var steamId = player.AuthorizedSteamID?.SteamId64 ?? player.SteamID;
+            if (dynamicprop.Health <= 0)
+            {
+                _testEggsEntities.Remove(dynamicprop);
+
+                entities.Remove();
+                entities.AcceptInput("kill");
+
+                if (eggType == 0)
+                {
+                    _plugin.PlayerManager!.IncrementKillEggs(steamId);
+                    player.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["killEgg"]}");
+                }
+                else if (eggType == 1)
+                {
+                    HandleEggPickup(player, dynamicprop.Entity!.Name);
+                }
+
+                GiveEggPrize(player);
+            }
+
+        }
+
+
     }
 }

@@ -1,6 +1,8 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Entities;
+using CounterStrikeSharp.API.Modules.Memory;
+using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
 using HuntDownTheEggs.Core;
 using HuntDownTheEggs.Utils;
@@ -29,9 +31,10 @@ namespace HuntDownTheEggs
 
             // Hook entity outputs
             _plugin.HookEntityOutput("trigger_multiple", "OnStartTouch", OnTriggerTouch, HookMode.Pre);
+
+            // Kill entities
+            VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(OnTakeDamage, HookMode.Post);
         }
-
-
 
         private HookResult OnPlayerDeath(EventPlayerDeath @event, GameEventInfo info)
         {
@@ -80,9 +83,6 @@ namespace HuntDownTheEggs
                 _plugin.DebugLog("Saving eggs to map file that were taken");
                 _plugin.EggManager!.SaveIfRemovedEggs();
             }
-            _plugin.DebugLog("Round ended! Clearing egg entities.");
-            _plugin.EggManager!.RemoveAllEggEntities();
-
             return HookResult.Continue;
         }
 
@@ -181,6 +181,7 @@ namespace HuntDownTheEggs
 
         private HookResult OnTriggerTouch(CEntityIOOutput output, string name, CEntityInstance activator, CEntityInstance caller, CVariant value, float delay)
         {
+            if(_plugin.Config.ShootEggMode) return HookResult.Continue;
             // Check if the activator is a valid player
             var pawn = activator.As<CCSPlayerPawn>();
             if (pawn == null || !pawn.IsValid)
@@ -290,12 +291,17 @@ namespace HuntDownTheEggs
             _ = _plugin.PlayerManager.LoadTopPlayersAsync(map);
 
             _plugin.DebugLog($"Map started: {map}");
-            
+
         }
 
         private void OnServerPrecacheResources(ResourceManifest manifest)
         {
             manifest.AddResource(_plugin.Config.EggModel);
+            if (_plugin.Config.TriggerModel != _plugin.Config.EggModel || !string.IsNullOrEmpty(_plugin.Config.TriggerModel))
+            {
+                manifest.AddResource(_plugin.Config.TriggerModel);
+            }
+                
         }
         private void OnCheckTransmit(CCheckTransmitInfoList infoList)
         {
@@ -369,6 +375,118 @@ namespace HuntDownTheEggs
                 _plugin.DebugLog($"[HDTE] [Checktransmit] error: {error}");
             }
         }
+        private HookResult OnTakeDamage(DynamicHook hook)
+        {
+            if (!_plugin.Config.ShootEggMode) return HookResult.Continue;
+
+            var entities = hook.GetParam<CEntityInstance>(0);
+            if (entities == null || !entities.IsValid || entities.Entity == null) return HookResult.Continue;
+
+            var damageinfo = hook.GetParam<CTakeDamageInfo>(1);
+            if (damageinfo == null)
+            {
+                return HookResult.Continue;
+            }
+
+            var attackerHandle = damageinfo.Attacker?.Value;
+            if (attackerHandle == null || !attackerHandle.IsValid)
+            {
+                return HookResult.Continue;
+            }
+
+            var playerPawn = attackerHandle.As<CCSPlayerPawn>();
+            if (playerPawn == null || !playerPawn.IsValid || playerPawn.Controller == null)
+            {
+                return HookResult.Continue;
+            }
+
+            var player = Utilities.GetPlayerFromIndex((int)playerPawn.Controller.Index);
+            if (player == null || !player.IsValid)
+            {
+                return HookResult.Continue;
+            }
+
+            // Additional safety check for entity name
+            string entityName = entities.Entity.Name;
+            if (string.IsNullOrEmpty(entityName))
+            {
+                return HookResult.Continue;
+            }
+
+            // Server.PrintToChatAll($"Strzelasz!0 {entityName}");
+            // entityName.Contains("kill_egg") || entityName.Contains("letegg")
+            // Check if the damaged entity is an egg
+
+            if (_plugin.EggManager!._testEggsEntities.Contains(entities.As<CDynamicProp>()))
+            {
+                var dynamicProp = entities.As<CDynamicProp>();
+
+                if (dynamicProp == null || !dynamicProp.IsValid) return HookResult.Continue;
+
+                var steamId = player.AuthorizedSteamID?.SteamId64 ?? player.SteamID;
+                if (steamId == 0) return HookResult.Continue;
+
+                // Ensure EggManager is not null
+                if (_plugin.EggManager == null)
+                {
+                    return HookResult.Continue;
+                }
+
+                // Ensure PlayerManager is not null
+                if (_plugin.PlayerManager == null)
+                {
+                    return HookResult.Continue;
+                }
+
+                // Ensure player data is loaded
+                var playerData = _plugin.PlayerManager.GetPlayerData(steamId);
+                if (playerData == null)
+                {
+                    Task.Run(async () =>
+                    {
+                        await _plugin.PlayerManager.AddPlayerAsync(steamId, player.PlayerName);
+                    });
+                    return HookResult.Continue;
+                }
+
+                // Handle kill-type eggs
+                if (entityName.Contains("kill"))
+                {
+                    dynamicProp.Health -= (int)Math.Round(damageinfo.Damage);
+
+                    player.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["eggShotHP", dynamicProp.Health]}");
+
+                    _plugin.EggManager!.RemoveEntityOnShoot(dynamicProp, entities, player, 0);
+                    return HookResult.Continue;
+                }
+
+                // Parse egg ID
+                string[] eggParts = entityName.Split("$");
+                if (eggParts.Length < 2) return HookResult.Continue;
+
+                if (!int.TryParse(eggParts[1], out int eggId))
+                    return HookResult.Continue;
+
+                // Check if player already owns this egg
+                if (playerData.Eggs.Contains(eggId))
+                {
+                    player.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["alreadyOwn"]}");
+                    return HookResult.Continue;
+                }
+                
+                dynamicProp.Health -= (int)Math.Round(damageinfo.Damage);
+                
+                player.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["eggShotHP", dynamicProp.Health]}");
+                _plugin.EggManager.RemoveEntityOnShoot(dynamicProp, entities, player, 1);
+
+            }
+
+
+            return HookResult.Continue;
+        }
+
+
+
 
     }
 }
