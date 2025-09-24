@@ -1,6 +1,6 @@
 {
     "prefix": "{lime}[JajkoBranie] {default}",
-    "welcomeMessage": "{green}************{lightyellow}[JAJKOBRANIE]{green}************\nDo zebrania na tej mapie jest {lightyellow}{0} jajek!\nZnajdź je wszystkie!\n Powodzenia!",
+    "welcomeMessage": "{green}************{lightyellow}[JAJKOBRANIE]{green}************\nDo zebrania na tej mapie jest {lightyellow}{0} jajek!\n{default} Dodatkowo, co runde w różnych miejscach jest do znalezienia {1} jajek!\n {default}Znajdź je wszystkie!\n Powodzenia!",
     "recievedPrize": "Zebrałeś jajko: {0} o rzadkości {1} {default}",
     "pickedEggNoPrize": "Zebrałeś jajko do kolekcji!",
     "alreadyOwn": "{orange}Posiadasz już to jajko!",

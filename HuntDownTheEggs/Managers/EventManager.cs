@@ -36,9 +36,14 @@ namespace HuntDownTheEggs
             VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(OnTakeDamage, HookMode.Post);
         }
 
+        public void DeregisterEvents()
+        {
+            VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Unhook(OnTakeDamage, HookMode.Post);
+        }
+
         private HookResult OnPlayerDeath(EventPlayerDeath @event, GameEventInfo info)
         {
-            if (!_plugin.Config.DeathMode) return HookResult.Continue;
+            if (!_plugin.Config.ModesSetup.DeathMode) return HookResult.Continue;
 
             var victim = @event.Userid;
             var attacker = @event.Attacker;
@@ -50,7 +55,7 @@ namespace HuntDownTheEggs
                 return HookResult.Continue;
 
             // Spawn egg based on config setting
-            if (_plugin.Config.SpawnDeathEggOnVictim)
+            if (_plugin.Config.ModesSetup.SpawnDeathEggOnVictim)
             {
                 _plugin.EggManager!.TrySpawnDeathEgg(victim);
             }
@@ -78,7 +83,7 @@ namespace HuntDownTheEggs
 
         private HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
         {
-            if (_plugin.Config.RemoveOnFind && _plugin.Config.SpawnPlacedEggsOnce)
+            if (_plugin.Config.ModesSetup.RemoveOnFind && _plugin.Config.ModesSetup.SpawnPlacedEggsOnce)
             {
                 _plugin.DebugLog("Saving eggs to map file that were taken");
                 _plugin.EggManager!.SaveIfRemovedEggs();
@@ -93,9 +98,9 @@ namespace HuntDownTheEggs
 
             // Show welcome message with egg count
             var eggCount = _plugin.EggManager!.GetEggCount();
-            if (_plugin.Config.SearchMode || eggCount > 0)
+            if (_plugin.Config.ModesSetup.SearchMode || eggCount > 0)
             {
-                var welcomeMessage = _plugin.Localizer["welcomeMessage", eggCount];
+                var welcomeMessage = _plugin.Localizer["welcomeMessage", eggCount, _plugin.Config.ModesSetup.NumberOfRandomEggs];
                 var formattedMessage = PluginUtilities.ReplaceMessageNewlines(welcomeMessage);
                 player.PrintToChat($"{formattedMessage}");
             }
@@ -181,7 +186,7 @@ namespace HuntDownTheEggs
 
         private HookResult OnTriggerTouch(CEntityIOOutput output, string name, CEntityInstance activator, CEntityInstance caller, CVariant value, float delay)
         {
-            if (_plugin.Config.ShootEggMode) return HookResult.Continue;
+            if (_plugin.Config.ModesSetup.ShootEggMode) return HookResult.Continue;
             // Check if the activator is a valid player
             var pawn = activator.As<CCSPlayerPawn>();
             if (pawn == null || !pawn.IsValid)
@@ -217,7 +222,7 @@ namespace HuntDownTheEggs
             string eggName = eggEntity.Entity!.Name;
             if (eggName.Contains("kill"))
             {
-                if (_plugin.Config.ShowKillEggOnlyForKiller)
+                if (_plugin.Config.EggSetup.ShowKillEggOnlyForKiller)
                 {
                     var killer = eggName.Split('_');
                     if (killer.Length < 2) return HookResult.Continue;
@@ -262,7 +267,7 @@ namespace HuntDownTheEggs
             // Check if player already owns this egg
             if (playerData.Eggs.Contains(eggId))
             {
-                if (_plugin.Config.HidePickedEggsPlayer) return HookResult.Continue;
+                if (_plugin.Config.EggSetup.HidePickedEggsPlayer) return HookResult.Continue;
                 player.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["alreadyOwn"]}");
                 return HookResult.Continue;
             }
@@ -271,12 +276,12 @@ namespace HuntDownTheEggs
             _plugin.EggManager.HandleEggPickup(player, eggEntity.Entity!.Name);
 
             // Handle egg entity removal if configured
-            if (_plugin.Config.RemoveOnFind)
+            if (_plugin.Config.ModesSetup.RemoveOnFind)
             {
                 _plugin.EggManager.RemoveEggEntity(triggerIndex, caller.As<CTriggerMultiple>());
 
                 // Remove egg from map file if configured to spawn eggs only once
-                if (_plugin.Config.SpawnPlacedEggsOnce)
+                if (_plugin.Config.ModesSetup.SpawnPlacedEggsOnce)
                 {
                     _plugin.EggManager.RemoveEgg(eggId);
                 }
@@ -315,10 +320,10 @@ namespace HuntDownTheEggs
 
         private void OnServerPrecacheResources(ResourceManifest manifest)
         {
-            manifest.AddResource(_plugin.Config.EggModel);
-            if (_plugin.Config.TriggerModel != _plugin.Config.EggModel || !string.IsNullOrEmpty(_plugin.Config.TriggerModel))
+            manifest.AddResource(_plugin.Config.EggSetup.EggModel);
+            if (_plugin.Config.EggSetup.TriggerModel != _plugin.Config.EggSetup.EggModel || !string.IsNullOrEmpty(_plugin.Config.EggSetup.TriggerModel))
             {
-                manifest.AddResource(_plugin.Config.TriggerModel);
+                manifest.AddResource(_plugin.Config.EggSetup.TriggerModel);
             }
 
         }
@@ -354,7 +359,7 @@ namespace HuntDownTheEggs
                         if (egg.Entity!.Name == null) continue;
 
                         //Hide already picked up eggs:
-                        if (_plugin.Config.HidePickedEggsPlayer)
+                        if (_plugin.Config.EggSetup.HidePickedEggsPlayer)
                         {
                             if (egg.Entity.Name.StartsWith("pack-letegg"))
                             {
@@ -370,7 +375,7 @@ namespace HuntDownTheEggs
                             }
                         }
                         //Hide kill eggs for non-killers:
-                        if (_plugin.Config.ShowKillEggOnlyForKiller)
+                        if (_plugin.Config.EggSetup.ShowKillEggOnlyForKiller)
                         {
                             if (egg.Entity.Name.StartsWith("$kill"))
                             {
@@ -396,7 +401,7 @@ namespace HuntDownTheEggs
         }
         private HookResult OnTakeDamage(DynamicHook hook)
         {
-            if (!_plugin.Config.ShootEggMode) return HookResult.Continue;
+            if (!_plugin.Config.ModesSetup.ShootEggMode) return HookResult.Continue;
 
             var entities = hook.GetParam<CEntityInstance>(0);
             if (entities == null || !entities.IsValid || entities.Entity == null) return HookResult.Continue;
@@ -480,9 +485,7 @@ namespace HuntDownTheEggs
 
                     _plugin.EggManager!.RemoveEntityOnShoot(dynamicProp, entities, player, 0);
                     return HookResult.Continue;
-                }
-
-                if (entityName.Contains("random"))
+                } else if (entityName.Contains("random"))
                 {
                     dynamicProp.Health -= (int)Math.Round(damageinfo.Damage);
 

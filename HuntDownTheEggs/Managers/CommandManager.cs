@@ -35,7 +35,7 @@ namespace HuntDownTheEggs
         private void PlaceEgg(CCSPlayerController? controller, CommandInfo info)
         {
             if (controller == null || !controller.PlayerPawn.IsValid || controller.PlayerPawn.Value == null) return;
-            if (!AdminManager.PlayerHasPermissions(controller, _plugin.Config.EggRootFlag)) return;
+            if (!AdminManager.PlayerHasPermissions(controller, _plugin.Config.EggSetup.EggRootFlag)) return;
             
             var colorArg = (info.ArgCount < 2) ? "default" : info.GetArg(1);
             var eggId = _plugin.EggManager!.GetEggCount();
@@ -45,7 +45,7 @@ namespace HuntDownTheEggs
 
             // Spawn the egg entity
             _plugin.EggManager.SpawnEgg(
-                new Vector(position.X, position.Y, position.Z + _plugin.Config.EggModelHeight), 
+                new Vector(position.X, position.Y, position.Z + _plugin.Config.EggSetup.EggModelHeight), 
                 colorArg, 
                 $"{_plugin.EggManager._mapName}_${eggId}"
             );
@@ -64,7 +64,7 @@ namespace HuntDownTheEggs
         private void TeleportToEgg(CCSPlayerController? controller, CommandInfo info)
         {
             if (controller == null || !controller.PlayerPawn.IsValid) return;
-            if (!AdminManager.PlayerHasPermissions(controller, _plugin.Config.EggRootFlag)) return;
+            if (!AdminManager.PlayerHasPermissions(controller, _plugin.Config.EggSetup.EggRootFlag)) return;
 
             if (info.ArgCount < 2)
             {
@@ -92,7 +92,7 @@ namespace HuntDownTheEggs
         private void RemoveEgg(CCSPlayerController? controller, CommandInfo info)
         {
             if (controller == null || !controller.PlayerPawn.IsValid) return;
-            if (!AdminManager.PlayerHasPermissions(controller, _plugin.Config.EggRootFlag)) return;
+            if (!AdminManager.PlayerHasPermissions(controller, _plugin.Config.EggSetup.EggRootFlag)) return;
 
             if (info.ArgCount < 2)
             {
@@ -124,7 +124,7 @@ namespace HuntDownTheEggs
 
         private void ReloadEggs(CCSPlayerController? controller, CommandInfo info)
         {
-            if (controller != null && !AdminManager.PlayerHasPermissions(controller, _plugin.Config.EggRootFlag)) return;
+            if (controller != null && !AdminManager.PlayerHasPermissions(controller, _plugin.Config.EggSetup.EggRootFlag)) return;
             
             _plugin.EggManager!.RemoveAllEggEntities();
             _plugin.EggManager.SpawnAllEggs();
@@ -134,7 +134,7 @@ namespace HuntDownTheEggs
 
         private void TogglePlacingMode(CCSPlayerController? controller, CommandInfo info)
         {
-            if (controller != null && !AdminManager.PlayerHasPermissions(controller, _plugin.Config.EggRootFlag)) return;
+            if (controller != null && !AdminManager.PlayerHasPermissions(controller, _plugin.Config.EggSetup.EggRootFlag)) return;
             
             _plugin.EggManager!.PlacingMode = !_plugin.EggManager.PlacingMode;
             Server.PrintToChatAll($"Egg placement mode: {_plugin.EggManager.PlacingMode}");
@@ -213,6 +213,7 @@ namespace HuntDownTheEggs
         {
             _plugin.DebugLog("Changing map. Clearing egg cache!");
             _plugin.EggManager!.ClearEggs();
+            //_plugin.EventManager!.DeregisterEvents();
             return HookResult.Continue;
         }
     }

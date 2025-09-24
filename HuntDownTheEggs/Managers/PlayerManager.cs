@@ -39,7 +39,8 @@ namespace HuntDownTheEggs
                     PlayerName = playerName,
                     Map = _plugin.EggManager._mapName,
                     Eggs = [],
-                    KillEggs = 0
+                    KillEggs = 0,
+                    RandomEggs = 0
                 };
             }
             else
@@ -51,6 +52,7 @@ namespace HuntDownTheEggs
                     Map = existingData.Map,
                     Eggs = existingData.Eggs,
                     KillEggs = existingData.KillEggs,
+                    RandomEggs = existingData.RandomEggs,
                     TotalEggs = existingData.TotalEggs
                 };
             }
@@ -61,6 +63,7 @@ namespace HuntDownTheEggs
             if (_players.TryGetValue(steamId, out var playerData))
             {
                 playerData.KillEggs++;
+                _plugin.DebugLog($"Adding player killeggs {playerData.KillEggs}");
             }
         }
 
@@ -69,6 +72,7 @@ namespace HuntDownTheEggs
             if (_players.TryGetValue(steamId, out var playerData))
             {
                 playerData.RandomEggs++;
+                _plugin.DebugLog($"Adding player killeggs {playerData.RandomEggs}");
             }
         }
 
@@ -101,7 +105,7 @@ namespace HuntDownTheEggs
                 try
                 {
                     // Just Debug bullshit (just in case)
-                    _plugin.DebugLog($"Saving player {playerName} (SteamID: {steamId}) with {playerData.KillEggs} kill eggs and {playerData.Eggs.Count} regular eggs on map {playerData.Map}");
+                    _plugin.DebugLog($"Saving player {playerName} (SteamID: {steamId}) with {playerData.KillEggs} kill eggs, {playerData.RandomEggs}, and {playerData.Eggs.Count} regular eggs on map {playerData.Map}");
 
                     await _plugin.DatabaseManager!.SavePlayerEggsAsync(playerData);
 

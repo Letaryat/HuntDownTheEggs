@@ -1,4 +1,5 @@
 using CounterStrikeSharp.API.Core;
+using HuntDownTheEggs.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace HuntDownTheEggs.Core
@@ -8,7 +9,7 @@ namespace HuntDownTheEggs.Core
         public override string ModuleName => "Hunt Down The Eggs";
         public override string ModuleAuthor => "Letaryat & Mesharsky";
         public override string ModuleDescription => "https://github.com/Letaryat/ & https://github.com/Mesharsky/";
-        public override string ModuleVersion => "1.2";
+        public override string ModuleVersion => "1.3";
 
         // Managers
         public EggManager? EggManager { get; private set; }
@@ -42,6 +43,8 @@ namespace HuntDownTheEggs.Core
 
             // Initialize database connection
             DatabaseManager?.InitializeConnection();
+
+            NavMesh.Init(this);
 
             Logger.LogInformation($"HuntDownTheEggs v{ModuleVersion} has been loaded!");
         }

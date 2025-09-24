@@ -15,10 +15,10 @@ namespace HuntDownTheEggs
         {
             var config = _plugin.Config;
 
-            if (string.IsNullOrEmpty(config.DBHost) ||
-                string.IsNullOrEmpty(config.DBName) ||
-                string.IsNullOrEmpty(config.DBPassword) ||
-                string.IsNullOrEmpty(config.DBUsername))
+            if (string.IsNullOrEmpty(config.DBSetup.DBHost) ||
+                string.IsNullOrEmpty(config.DBSetup.DBName) ||
+                string.IsNullOrEmpty(config.DBSetup.DBPassword) ||
+                string.IsNullOrEmpty(config.DBSetup.DBUsername))
             {
                 _plugin.Logger.LogInformation("MySQL database configuration is incomplete!");
                 return;
@@ -26,11 +26,11 @@ namespace HuntDownTheEggs
 
             MySqlConnectionStringBuilder builder = new()
             {
-                Server = config.DBHost,
-                UserID = config.DBUsername,
-                Port = config.DBPort,
-                Password = config.DBPassword,
-                Database = config.DBName,
+                Server = config.DBSetup.DBHost,
+                UserID = config.DBSetup.DBUsername,
+                Port = config.DBSetup.DBPort,
+                Password = config.DBSetup.DBPassword,
+                Database = config.DBSetup.DBName,
             };
 
             _connectionString = builder.ConnectionString;
@@ -186,7 +186,7 @@ namespace HuntDownTheEggs
                         new
                         {
                             steamId = playerData.SteamId,
-                            eggs = playerData.KillEggs,
+                            eggs = playerData.RandomEggs,
                             map = playerData.Map,
                             name = playerData.PlayerName
                         });
@@ -199,7 +199,7 @@ namespace HuntDownTheEggs
                         {
                             steamId = playerData.SteamId,
                             map = playerData.Map,
-                            eggs = playerData.KillEggs,
+                            eggs = playerData.RandomEggs,
                             name = playerData.PlayerName
                         });
                 }

@@ -11,11 +11,27 @@ using System.Collections;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using CounterStrikeSharp.API.Modules.Utils;
+using HuntDownTheEggs.Core;
 
 namespace HuntDownTheEggs.Extensions
 {
-    public class NavMesh
+    public static class NavMesh
     {
+        private static HuntDownTheEggsPlugin? _plugin;
+
+        public static void Init(HuntDownTheEggsPlugin plugin)
+        {
+            _plugin = plugin;
+        }
+
+        private static void Log(string msg)
+        {
+            if (_plugin!.Config.DebugNavMesh)
+            {
+                _plugin?.DebugLog(msg);
+            }
+        }
+
         public static readonly MemoryFunctionWithReturn<nint, bool> CSource2Server_IsValidNavMesh = new("48 8D 05 ?? ?? ?? ?? 48 83 38 00 0F 95 C0 C3");
 
         public static readonly nint NavMeshPtrAddress = GetNavMeshPtrAddress();
@@ -33,77 +49,77 @@ namespace HuntDownTheEggs.Extensions
             try
             {
                 nint navMeshAddress = GetNavMeshAddress();
-                Console.WriteLine($"[NavMesh Debug] NavMesh address: 0x{navMeshAddress:X}");
-                
+                Log($"[NavMesh Debug] NavMesh address: 0x{navMeshAddress:X}");
+
                 if (navMeshAddress == 0)
                 {
-                    Console.WriteLine("[NavMesh Debug] NavMesh address is null");
+                    Log("[NavMesh Debug] NavMesh address is null");
                     return null;
                 }
 
                 var navMesh = new CNavMesh(navMeshAddress);
-                Console.WriteLine($"[NavMesh Debug] NavMesh created, count: {navMesh.Count}");
+                Log($"[NavMesh Debug] NavMesh created, count: {navMesh.Count}");
                 return navMesh;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[NavMesh Debug] Error getting NavMesh: {ex.Message}");
+                Log($"[NavMesh Debug] Error getting NavMesh: {ex.Message}");
                 return null;
             }
         }
 
         public static Vector? GetRandomPosition(int maxAttempts = 10, bool includeOneWayAccessible = false)
         {
-            Console.WriteLine($"[NavMesh Debug] GetRandomPosition called with maxAttempts: {maxAttempts}");
-            
+            Log($"[NavMesh Debug] GetRandomPosition called with maxAttempts: {maxAttempts}");
+
             try
             {
                 // Get spawn points first
                 var spawnPoints = GetSpawnPoints();
-                Console.WriteLine($"[NavMesh Debug] Found {spawnPoints.Count} spawn points");
-                
+                Log($"[NavMesh Debug] Found {spawnPoints.Count} spawn points");
+
                 if (spawnPoints.Count == 0)
                 {
-                    Console.WriteLine("[NavMesh Debug] No spawn points found");
+                    Log("[NavMesh Debug] No spawn points found");
                     return null;
                 }
 
                 Vector? spawnPoint = spawnPoints.FirstOrDefault()?.AbsOrigin;
                 if (spawnPoint == null)
                 {
-                    Console.WriteLine("[NavMesh Debug] First spawn point has null AbsOrigin");
+                    Log("[NavMesh Debug] First spawn point has null AbsOrigin");
                     return null;
                 }
 
-                Console.WriteLine($"[NavMesh Debug] Using spawn point: {spawnPoint.X}, {spawnPoint.Y}, {spawnPoint.Z}");
+                Log($"[NavMesh Debug] Using spawn point: {spawnPoint.X}, {spawnPoint.Y}, {spawnPoint.Z}");
                 return GetRandomAccessiblePosition(spawnPoint, maxAttempts, includeOneWayAccessible);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[NavMesh Debug] Exception in GetRandomPosition: {ex.Message}");
-                Console.WriteLine($"[NavMesh Debug] Stack trace: {ex.StackTrace}");
+                Log($"[NavMesh Debug] Exception in GetRandomPosition: {ex.Message}");
+                Log($"[NavMesh Debug] Stack trace: {ex.StackTrace}");
                 return null;
             }
         }
 
         public static Vector? GetRandomAccessiblePosition(Vector startPosition, int maxAttempts = 10, bool includeOneWayAccessible = false)
         {
-            Console.WriteLine($"[NavMesh Debug] GetRandomAccessiblePosition called from {startPosition.X}, {startPosition.Y}, {startPosition.Z}");
-            
+            Log($"[NavMesh Debug] GetRandomAccessiblePosition called from {startPosition.X}, {startPosition.Y}, {startPosition.Z}");
+
             try
             {
                 CNavMesh? navMesh = GetNavMesh();
                 if (navMesh == null)
                 {
-                    Console.WriteLine("[NavMesh Debug] NavMesh is null, trying basic spawn point method");
+                    Log("[NavMesh Debug] NavMesh is null, trying basic spawn point method");
                     return TryGetBasicRandomPosition();
                 }
 
-                Console.WriteLine($"[NavMesh Debug] NavMesh has {navMesh.Count} areas");
+                Log($"[NavMesh Debug] NavMesh has {navMesh.Count} areas");
 
                 if (navMesh.Count == 0)
                 {
-                    Console.WriteLine("[NavMesh Debug] NavMesh has no areas");
+                    Log("[NavMesh Debug] NavMesh has no areas");
                     return null;
                 }
 
@@ -113,33 +129,33 @@ namespace HuntDownTheEggs.Extensions
                     try
                     {
                         CNavArea navArea = navMesh[Random.Shared.Next(navMesh.Count)];
-                        Console.WriteLine($"[NavMesh Debug] Attempt {i + 1}: Checking area {navArea.ID}, blocked team: {navArea.BlockedTeam}");
+                        Log($"[NavMesh Debug] Attempt {i + 1}: Checking area {navArea.ID}, blocked team: {navArea.BlockedTeam}");
                         /*
                         if (navArea.BlockedTeam != 0)
                         {
-                            Console.WriteLine($"[NavMesh Debug] Area {navArea.ID} is blocked for team {navArea.BlockedTeam}");
+                            Log($"[NavMesh Debug] Area {navArea.ID} is blocked for team {navArea.BlockedTeam}");
                             continue;
                         }
                         */
                         // Simple distance check instead of complex pathfinding
                         float distance = DistanceTo(startPosition, navArea.Center);
-                        Console.WriteLine($"[NavMesh Debug] Distance to area {navArea.ID}: {distance}");
-                        
+                        Log($"[NavMesh Debug] Distance to area {navArea.ID}: {distance}");
+
                         if (distance < 5000.0f) // Reasonable distance check
                         {
-                            Console.WriteLine($"[NavMesh Debug] Found valid area {navArea.ID} at {navArea.Center.X}, {navArea.Center.Y}, {navArea.Center.Z}");
+                            Log($"[NavMesh Debug] Found valid area {navArea.ID} at {navArea.Center.X}, {navArea.Center.Y}, {navArea.Center.Z}");
                             return navArea.Center;
                         }
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"[NavMesh Debug] Error in attempt {i + 1}: {ex.Message}");
+                        Log($"[NavMesh Debug] Error in attempt {i + 1}: {ex.Message}");
                         continue;
                     }
                 }
 
-                Console.WriteLine("[NavMesh Debug] No accessible areas found within distance, trying any non-blocked area");
-                
+                Log("[NavMesh Debug] No accessible areas found within distance, trying any non-blocked area");
+
                 // Fallback: try any non-blocked area
                 for (int i = 0; i < Math.Min(maxAttempts, navMesh.Count); i++)
                 {
@@ -148,24 +164,24 @@ namespace HuntDownTheEggs.Extensions
                         CNavArea navArea = navMesh[Random.Shared.Next(navMesh.Count)];
                         if (navArea.BlockedTeam == 0)
                         {
-                            Console.WriteLine($"[NavMesh Debug] Using fallback area {navArea.ID} at {navArea.Center.X}, {navArea.Center.Y}, {navArea.Center.Z}");
+                            Log($"[NavMesh Debug] Using fallback area {navArea.ID} at {navArea.Center.X}, {navArea.Center.Y}, {navArea.Center.Z}");
                             return navArea.Center;
                         }
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"[NavMesh Debug] Error in fallback attempt {i + 1}: {ex.Message}");
+                        Log($"[NavMesh Debug] Error in fallback attempt {i + 1}: {ex.Message}");
                         continue;
                     }
                 }
 
-                Console.WriteLine("[NavMesh Debug] All attempts failed");
+                Log("[NavMesh Debug] All attempts failed");
                 return null;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[NavMesh Debug] Exception in GetRandomAccessiblePosition: {ex.Message}");
-                Console.WriteLine($"[NavMesh Debug] Stack trace: {ex.StackTrace}");
+                Log($"[NavMesh Debug] Exception in GetRandomAccessiblePosition: {ex.Message}");
+                Log($"[NavMesh Debug] Stack trace: {ex.StackTrace}");
                 return null;
             }
         }
@@ -173,13 +189,13 @@ namespace HuntDownTheEggs.Extensions
         // Basic fallback that doesn't rely on navmesh
         private static Vector? TryGetBasicRandomPosition()
         {
-            Console.WriteLine("[NavMesh Debug] Trying basic random position from spawn points");
+            Log("[NavMesh Debug] Trying basic random position from spawn points");
             try
             {
                 var spawnPoints = GetSpawnPoints();
                 if (spawnPoints.Count == 0)
                 {
-                    Console.WriteLine("[NavMesh Debug] No spawn points for basic method");
+                    Log("[NavMesh Debug] No spawn points for basic method");
                     return null;
                 }
 
@@ -193,27 +209,27 @@ namespace HuntDownTheEggs.Extensions
                         pos.Y + Random.Shared.Next(-500, 500),
                         pos.Z + 50 // Slightly above ground
                     );
-                    Console.WriteLine($"[NavMesh Debug] Generated basic random position: {randomPos.X}, {randomPos.Y}, {randomPos.Z}");
+                    Log($"[NavMesh Debug] Generated basic random position: {randomPos.X}, {randomPos.Y}, {randomPos.Z}");
                     return randomPos;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[NavMesh Debug] Error in basic random position: {ex.Message}");
+                Log($"[NavMesh Debug] Error in basic random position: {ex.Message}");
             }
             return null;
         }
 
         public static CNavArea? GetClosestNavArea(Vector position, float maximumDistance = -1)
         {
-            Console.WriteLine($"[NavMesh Debug] GetClosestNavArea called for {position.X}, {position.Y}, {position.Z}");
-            
+            Log($"[NavMesh Debug] GetClosestNavArea called for {position.X}, {position.Y}, {position.Z}");
+
             try
             {
                 CNavMesh? navMesh = GetNavMesh();
                 if (navMesh == null)
                 {
-                    Console.WriteLine("[NavMesh Debug] NavMesh is null in GetClosestNavArea");
+                    Log("[NavMesh Debug] NavMesh is null in GetClosestNavArea");
                     return null;
                 }
 
@@ -235,29 +251,29 @@ namespace HuntDownTheEggs.Extensions
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"[NavMesh Debug] Error checking nav area: {ex.Message}");
+                        Log($"[NavMesh Debug] Error checking nav area: {ex.Message}");
                         continue;
                     }
                 }
 
-                Console.WriteLine($"[NavMesh Debug] Checked {checkedAreas} areas, closest distance: {closestDistance}");
+                Log($"[NavMesh Debug] Checked {checkedAreas} areas, closest distance: {closestDistance}");
 
                 if (maximumDistance > 0 && closestDistance > maximumDistance)
                 {
-                    Console.WriteLine($"[NavMesh Debug] Closest area is too far: {closestDistance} > {maximumDistance}");
+                    Log($"[NavMesh Debug] Closest area is too far: {closestDistance} > {maximumDistance}");
                     return null;
                 }
 
                 if (closest != null)
                 {
-                    Console.WriteLine($"[NavMesh Debug] Found closest area {closest.ID} at distance {closestDistance}");
+                    Log($"[NavMesh Debug] Found closest area {closest.ID} at distance {closestDistance}");
                 }
 
                 return closest;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[NavMesh Debug] Exception in GetClosestNavArea: {ex.Message}");
+                Log($"[NavMesh Debug] Exception in GetClosestNavArea: {ex.Message}");
                 return null;
             }
         }
@@ -268,7 +284,7 @@ namespace HuntDownTheEggs.Extensions
             // Simple fallback - assume areas are accessible if they're not blocked and within reasonable distance
             if (goalNavArea == null) return true;
             if (goalNavArea.BlockedTeam != 0) return false;
-            
+
             float distance = DistanceTo(startNavArea.Center, goalNavArea.Center);
             return distance < 3000.0f; // Adjust this distance as needed
         }
@@ -277,53 +293,53 @@ namespace HuntDownTheEggs.Extensions
         {
             try
             {
-                Console.WriteLine("[NavMesh Debug] Getting spawn points...");
-                
+                Log("[NavMesh Debug] Getting spawn points...");
+
                 var gameRulesProxies = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules");
-                Console.WriteLine($"[NavMesh Debug] Found {gameRulesProxies.Count()} game rules proxies");
+                Log($"[NavMesh Debug] Found {gameRulesProxies.Count()} game rules proxies");
 
                 CCSGameRules? gameRules = gameRulesProxies.FirstOrDefault()?.GameRules;
-                
+
                 if (gameRules == null)
                 {
-                    Console.WriteLine("[NavMesh Debug] GameRules is null");
+                    Log("[NavMesh Debug] GameRules is null");
                     return [];
                 }
 
-                Console.WriteLine("[NavMesh Debug] GameRules found, getting spawn points");
+                Log("[NavMesh Debug] GameRules found, getting spawn points");
 
                 List<SpawnPoint> spawnPoints = [];
-                
+
                 try
                 {
                     var ctSpawns = GetVectorPtrElements(gameRules.CTSpawnPoints);
                     var ctCount = ctSpawns.Count();
-                    Console.WriteLine($"[NavMesh Debug] Found {ctCount} CT spawn points");
+                    Log($"[NavMesh Debug] Found {ctCount} CT spawn points");
                     spawnPoints.AddRange(ctSpawns);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[NavMesh Debug] Error getting CT spawns: {ex.Message}");
+                    Log($"[NavMesh Debug] Error getting CT spawns: {ex.Message}");
                 }
 
                 try
                 {
                     var tSpawns = GetVectorPtrElements(gameRules.TerroristSpawnPoints);
                     var tCount = tSpawns.Count();
-                    Console.WriteLine($"[NavMesh Debug] Found {tCount} T spawn points");
+                    Log($"[NavMesh Debug] Found {tCount} T spawn points");
                     spawnPoints.AddRange(tSpawns);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[NavMesh Debug] Error getting T spawns: {ex.Message}");
+                    Log($"[NavMesh Debug] Error getting T spawns: {ex.Message}");
                 }
 
-                Console.WriteLine($"[NavMesh Debug] Total spawn points: {spawnPoints.Count}");
+                Log($"[NavMesh Debug] Total spawn points: {spawnPoints.Count}");
                 return spawnPoints;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[NavMesh Debug] Exception in GetSpawnPoints: {ex.Message}");
+                Log($"[NavMesh Debug] Exception in GetSpawnPoints: {ex.Message}");
                 return [];
             }
         }
