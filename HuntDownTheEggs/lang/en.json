@@ -1,6 +1,6 @@
 {
     "prefix": "{lime}[EggHunting] {default}",
-    "welcomeMessage": "{green}************{lightyellow}[EggHunting]{green}************\nThere are {lightyellow}{0} eggs in total on this map!\n{default} Additionaly, each round in random places there will be {1} eggs to find!\n Try to find them all!\n Good luck!",
+    "welcomeMessage": "{green}************{lightyellow}[EggHunting]{green}************\nThere are {lightyellow}{0} eggs in total on this map!\n{lime}Additionaly, each round in random places there will be {1} eggs to find!\n Try to find them all!\n Good luck!",
     "recievedPrize": "You picked up the egg: {0} with rarity: {1} {default}",
     "pickedEggNoPrize": "You picked up the egg!",
     "alreadyOwn": "{orange}You already found this egg!!",
