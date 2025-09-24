@@ -217,6 +217,13 @@ namespace HuntDownTheEggs
             string eggName = eggEntity.Entity!.Name;
             if (eggName.Contains("kill"))
             {
+                if (_plugin.Config.ShowKillEggOnlyForKiller)
+                {
+                    var killer = eggName.Split('_');
+                    if (killer.Length < 2) return HookResult.Continue;
+                    if (!int.TryParse(killer[1], out int killerId) || player.UserId != killerId) return HookResult.Continue;
+                }
+                
                 _plugin.PlayerManager.IncrementKillEggs(steamId);
                 player.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["killEgg"]}");
 
@@ -351,9 +358,9 @@ namespace HuntDownTheEggs
                             }
                         }
                         //Hide kill eggs for non-killers:
-                        if (_plugin.Config.HidePickedEggsPlayer)
+                        if (_plugin.Config.ShowKillEggOnlyForKiller)
                         {
-                            if (egg.Entity.Name.StartsWith("pack-$kill"))
+                            if (egg.Entity.Name.StartsWith("$kill"))
                             {
                                 var killer = egg.Entity.Name.Split('_');
                                 if (killer.Length < 2) continue;
