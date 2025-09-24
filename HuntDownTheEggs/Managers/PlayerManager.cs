@@ -13,6 +13,8 @@ namespace HuntDownTheEggs
         private readonly Dictionary<string, int> _topEggsCache = [];
         private readonly Dictionary<string, int> _topKillEggsCache = [];
 
+        private readonly Dictionary<string, int> _topRandomEggsCache = [];
+
         public void ClearPlayers()
         {
             _players.Clear();
@@ -26,9 +28,9 @@ namespace HuntDownTheEggs
         public async Task AddPlayerAsync(ulong steamId, string playerName)
         {
             _plugin.DebugLog($"Client authorization: {steamId}");
-            
+
             var existingData = await _plugin.DatabaseManager!.GetPlayerEggsAsync(steamId, _plugin.EggManager!._mapName);
-            
+
             if (existingData == null)
             {
                 _players[steamId] = new PlayerData
@@ -62,6 +64,15 @@ namespace HuntDownTheEggs
             }
         }
 
+        public void IncrementRandomEggs(ulong steamId)
+        {
+            if (_players.TryGetValue(steamId, out var playerData))
+            {
+                playerData.RandomEggs++;
+            }
+        }
+
+
         public async Task EnsurePlayerExists(ulong steamId, CCSPlayerController controller)
         {
             if (!_players.ContainsKey(steamId))
@@ -75,7 +86,8 @@ namespace HuntDownTheEggs
                     PlayerName = controller.PlayerName,
                     Map = userData.Map,
                     Eggs = userData.Eggs,
-                    KillEggs = userData.KillEggs
+                    KillEggs = userData.KillEggs,
+                    RandomEggs = userData.RandomEggs
                 };
             }
         }
@@ -85,14 +97,14 @@ namespace HuntDownTheEggs
             if (_players.TryGetValue(steamId, out var playerData))
             {
                 playerData.PlayerName = playerName;
-                
-                try 
+
+                try
                 {
                     // Just Debug bullshit (just in case)
                     _plugin.DebugLog($"Saving player {playerName} (SteamID: {steamId}) with {playerData.KillEggs} kill eggs and {playerData.Eggs.Count} regular eggs on map {playerData.Map}");
-                    
+
                     await _plugin.DatabaseManager!.SavePlayerEggsAsync(playerData);
-                    
+
                     _players.TryRemove(steamId, out _);
                 }
                 catch (Exception ex)
@@ -109,7 +121,7 @@ namespace HuntDownTheEggs
         public async Task SaveAllPlayersAsync()
         {
             _plugin.DebugLog("Saving all players to database");
-            
+
             try
             {
                 foreach (var player in _players)
@@ -144,6 +156,16 @@ namespace HuntDownTheEggs
                     foreach (var entry in topKillEggs)
                     {
                         _topKillEggsCache[entry.Key] = entry.Value;
+                    }
+                }
+
+                var topRandomEggs = await _plugin.DatabaseManager.GetTopRandomEggsAsync(map);
+                if (topRandomEggs != null)
+                {
+                    _topRandomEggsCache.Clear();
+                    foreach (var entry in topRandomEggs)
+                    {
+                        _topRandomEggsCache[entry.Key] = entry.Value;
                     }
                 }
             }

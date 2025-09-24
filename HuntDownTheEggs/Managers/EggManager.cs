@@ -77,7 +77,7 @@ namespace HuntDownTheEggs
                         continue;
                     }
 
-                    SpawnEgg(new Vector(randomPos.X, randomPos.Y, randomPos.Z), "default", "$kill_egg_random");
+                    SpawnEgg(new Vector(randomPos.X, randomPos.Y, randomPos.Z), "default", "$random_egg");
                     _plugin.DebugLog($"Spawned egg on: {randomPos.X} {randomPos.Y} {randomPos.Z}");
                 }
             }
@@ -517,6 +517,8 @@ namespace HuntDownTheEggs
 
         public void RemoveEntityOnShoot(CDynamicProp dynamicprop, CEntityInstance entities, CCSPlayerController player, int eggType)
         {
+            // eggtype: 0 - Kill, 1 - Placed by admin, 2- Random spawned eggs
+            
             var steamId = player.AuthorizedSteamID?.SteamId64 ?? player.SteamID;
             if (dynamicprop.Health <= 0)
             {
@@ -533,6 +535,11 @@ namespace HuntDownTheEggs
                 else if (eggType == 1)
                 {
                     HandleEggPickup(player, dynamicprop.Entity!.Name);
+                }
+                else if (eggType == 2)
+                {
+                    _plugin.PlayerManager!.IncrementRandomEggs(steamId);
+                    player.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["randomEgg"]}");
                 }
 
                 GiveEggPrize(player);

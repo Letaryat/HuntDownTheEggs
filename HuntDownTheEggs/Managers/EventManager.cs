@@ -223,9 +223,21 @@ namespace HuntDownTheEggs
                     if (killer.Length < 2) return HookResult.Continue;
                     if (!int.TryParse(killer[1], out int killerId) || player.UserId != killerId) return HookResult.Continue;
                 }
-                
+
                 _plugin.PlayerManager.IncrementKillEggs(steamId);
                 player.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["killEgg"]}");
+
+                // Remove the egg entity
+                _plugin.EggManager.RemoveEggEntity(triggerIndex, caller.As<CTriggerMultiple>());
+
+                // Give prize to player
+                _plugin.EggManager.GiveEggPrize(player);
+                return HookResult.Continue;
+            }
+            if (eggName.Contains("random"))
+            {
+                _plugin.PlayerManager.IncrementRandomEggs(steamId);
+                player.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["randomEgg"]}");
 
                 // Remove the egg entity
                 _plugin.EggManager.RemoveEggEntity(triggerIndex, caller.As<CTriggerMultiple>());
@@ -466,8 +478,20 @@ namespace HuntDownTheEggs
                         player.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["eggShotHP", dynamicProp.Health]}");
                     }
 
-
                     _plugin.EggManager!.RemoveEntityOnShoot(dynamicProp, entities, player, 0);
+                    return HookResult.Continue;
+                }
+
+                if (entityName.Contains("random"))
+                {
+                    dynamicProp.Health -= (int)Math.Round(damageinfo.Damage);
+
+                    if (dynamicProp.Health > 0)
+                    {
+                        player.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["eggShotHP", dynamicProp.Health]}");
+                    }
+
+                    _plugin.EggManager!.RemoveEntityOnShoot(dynamicProp, entities, player, 2);
                     return HookResult.Continue;
                 }
 

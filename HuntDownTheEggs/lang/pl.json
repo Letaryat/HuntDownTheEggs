@@ -5,6 +5,7 @@
     "pickedEggNoPrize": "Zebrałeś jajko do kolekcji!",
     "alreadyOwn": "{orange}Posiadasz już to jajko!",
     "killEgg": "{lightyellow}Podnosisz jajko uzyskane po zabójstwie!",
+    "randomEgg": "{lightyellow}Podnosisz losowo wygenerowane jajko!",
     "playerNotFound": "{darkred}Nie znaleziono gracza!",
     "myEggs": "{green}************{lightyellow}[JAJKOBRANIE]{green}************\n{default}Suma twoich jajek:{lime}{2}\n{default}Posiadasz zebranych jajek: {orange}{0}\n{default}Posiadasz ogólnie: {orange}{1} jajek zabójstw\n{default}Na mapie {orange}{4}{default} znalazles: {lime}{3}",
     "topListHeader": "{green}************{lightyellow}[TOP LISTA]{green}************\n{default}",

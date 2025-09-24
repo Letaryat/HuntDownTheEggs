@@ -17,9 +17,6 @@ namespace HuntDownTheEggs.Core
         public new CommandManager? CommandManager { get; private set; }
         public EventManager? EventManager { get; private set; }
 
-        public SpawnsManager? SpawnManager { get; private set; }
-
-
         // Configuration
         public required PluginConfig Config { get; set; }
         
@@ -36,7 +33,6 @@ namespace HuntDownTheEggs.Core
             EggManager = new EggManager(this);
             CommandManager = new CommandManager(this);
             EventManager = new EventManager(this);
-            SpawnManager = new SpawnsManager(this);
 
             // Register event handlers through the event manager
             EventManager.RegisterEvents();
