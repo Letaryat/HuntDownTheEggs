@@ -71,7 +71,7 @@ namespace HuntDownTheEggs.Models
         public bool ShootEggMode { get; set; } = true;
 
         [JsonPropertyName("ShootEggHealth")]
-        public int ShootEggHealth = 100;
+        public int ShootEggHealth { get; set; } = 100;
 
         [JsonPropertyName("SpawnDeathEggOnVictim")]
         public bool SpawnDeathEggOnVictim { get; set; } = true;
