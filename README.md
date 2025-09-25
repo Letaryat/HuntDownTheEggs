@@ -26,7 +26,7 @@ If you have any more problems or would like to know more, [please visit wiki.](h
 - [CS2-Ranks](https://github.com/partiusfabaa/cs2-ranks), [SimpleAdmin](github.com/daffyyyy/CS2-SimpleAdmin) used as an examples of Dapper and MySQLConnector, 
 - [Dliix66](https://discord.com/channels/1160907911501991946/1311638450881167523/1311973008122052618) - Method for glow effect,
 - [21Joakim](https://gist.github.com/21Joakim/6a264623e4ac8ae217e0eb15fc43e3e5#file-navmesh-cs) - Navmesh,
-- [oqyh / GoldKingZ](https://github.com/oqyh/cs2-Prop-Health-GoldKingZ) - Navmesh,
+- [oqyh / GoldKingZ](https://github.com/oqyh/cs2-Prop-Health-GoldKingZ) - OnTakeDamage function for props,
 - CounterStrikeSharp Discord,
 
 ### [💥] Model
