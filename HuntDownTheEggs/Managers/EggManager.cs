@@ -64,6 +64,7 @@ namespace HuntDownTheEggs
 
         public void SpawnAllEggs()
         {
+            var e = 0; 
             if (_plugin.Config.ModesSetup.SpawnRandomEggs)
             {
                 _plugin.Logger.LogInformation("Spawning random eggs");
@@ -76,9 +77,10 @@ namespace HuntDownTheEggs
                         _plugin.DebugLog($"Failed to get {randomPos}. Times: {i}");
                         continue;
                     }
-
+                    e++;
                     SpawnEgg(new Vector(randomPos.X, randomPos.Y, randomPos.Z), "default", "$random_egg");
-                    _plugin.DebugLog($"Spawned egg on: {randomPos.X} {randomPos.Y} {randomPos.Z}");
+                    _plugin.DebugLog($"Spawned egg on: {randomPos.X} {randomPos.Y} {randomPos.Z} | Number: {e}");
+                    
                 }
             }
 
