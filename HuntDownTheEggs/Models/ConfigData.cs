@@ -101,4 +101,27 @@ namespace HuntDownTheEggs.Models
         public Dictionary<string, EggTypeConfig> EggsTypes { get; set; } = [];
     }
 
+    public class CommandsSetup
+    {
+        public bool EnableCommands { get; set; } = true;
+
+        [JsonPropertyName("PlaceEggCommands")]
+        public List<string> PlaceEggCommands { get; set; } = ["css_eggplace"];
+        [JsonPropertyName("TeleportToEggCommands")]
+        public List<string> TeleportToEggCommands { get; set; } = ["css_tpegg"];
+        [JsonPropertyName("RemoveEggCommands")]
+        public List<string> RemoveEggCommands { get; set; } = ["css_removeegg"];
+        [JsonPropertyName("ReloadEggsCommands")]
+        public List<string> ReloadEggsCommands { get; set; } = ["css_reloadeggs"];
+        [JsonPropertyName("PlacingModeCommands")]
+        public List<string> PlacingModeCommands { get; set; } = ["css_placingMode"];
+        [JsonPropertyName("ShowMyEggsCommands")]
+        public List<string> ShowMyEggsCommands { get; set; } = ["css_myeggs"];
+        [JsonPropertyName("ShowTopEggsCommands")]
+        public List<string> ShowTopEggsCommands { get; set; } = ["css_topeggs"];
+        [JsonPropertyName("ShowTopKillEggsCommands")]
+        public List<string> ShowTopKillEggsCommands { get; set; } = ["css_topkilleggs"];
+    }
+
+
 }

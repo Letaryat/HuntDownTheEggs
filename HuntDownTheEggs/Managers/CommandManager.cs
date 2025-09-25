@@ -20,23 +20,54 @@ namespace HuntDownTheEggs
             _plugin.AddCommandListener("map", OnChangeLevelCommand, HookMode.Pre);
             _plugin.AddCommandListener("host_workshop_map", OnChangeLevelCommand, HookMode.Pre);
             _plugin.AddCommandListener("ds_workshop_changelevel", OnChangeLevelCommand, HookMode.Pre);
-            
+
             // Register Plugin Commandss
-            _plugin.AddCommand("css_eggplace", "Generate present where you stand", PlaceEgg);
-            _plugin.AddCommand("css_tpegg", "Teleport to present using ID", TeleportToEgg);
-            _plugin.AddCommand("css_removeegg", "Teleport to present using ID", RemoveEgg);
-            _plugin.AddCommand("css_reloadeggs", "Teleport to present using ID", ReloadEggs);
-            _plugin.AddCommand("css_placingMode", "Mode that turn offs picking up eggs", TogglePlacingMode);
-            _plugin.AddCommand("css_myeggs", "Show player eggs to player", ShowMyEggs);
-            _plugin.AddCommand("css_topeggs", "Print top 5 eggs in chat", ShowTopEggs);
-            _plugin.AddCommand("css_topkilleggs", "Print top 5 kill eggs in chat", ShowTopKillEggs);
+
+            if (_plugin.Config.CommandsSetup.EnableCommands)
+            {
+                foreach (var cmd in _plugin.Config.CommandsSetup.PlaceEggCommands)
+                {
+                    _plugin.AddCommand(cmd, "Generate present where you stand", PlaceEgg);
+                }
+                foreach (var cmd in _plugin.Config.CommandsSetup.TeleportToEggCommands)
+                {
+                    _plugin.AddCommand(cmd, "Teleport to present using ID", TeleportToEgg);
+                }
+                foreach (var cmd in _plugin.Config.CommandsSetup.RemoveEggCommands)
+                {
+                    _plugin.AddCommand(cmd, "Remove egg via ID", RemoveEgg);
+                }
+                foreach (var cmd in _plugin.Config.CommandsSetup.ReloadEggsCommands)
+                {
+                    _plugin.AddCommand(cmd, "Reload eggs on map", ReloadEggs);
+                }
+                foreach (var cmd in _plugin.Config.CommandsSetup.PlacingModeCommands)
+                {
+                    _plugin.AddCommand(cmd, "Mode that turn offs picking up eggs", TogglePlacingMode);
+                }
+                foreach (var cmd in _plugin.Config.CommandsSetup.ShowMyEggsCommands)
+                {
+                    _plugin.AddCommand(cmd, "Show player eggs to player", ShowMyEggs);
+                }
+                foreach (var cmd in _plugin.Config.CommandsSetup.ShowTopEggsCommands)
+                {
+                    _plugin.AddCommand(cmd, "Print top 5 eggs in chat", ShowTopEggs);
+                }
+                foreach (var cmd in _plugin.Config.CommandsSetup.ShowTopKillEggsCommands)
+                {
+                    _plugin.AddCommand(cmd, "Print top 5 kill eggs in chat", ShowTopKillEggs);
+                }
+
+                _plugin.DebugLog("Commands registered.");
+            }
+
         }
 
         private void PlaceEgg(CCSPlayerController? controller, CommandInfo info)
         {
             if (controller == null || !controller.PlayerPawn.IsValid || controller.PlayerPawn.Value == null) return;
             if (!AdminManager.PlayerHasPermissions(controller, _plugin.Config.EggSetup.EggRootFlag)) return;
-            
+
             var colorArg = (info.ArgCount < 2) ? "default" : info.GetArg(1);
             var eggId = _plugin.EggManager!.GetEggCount();
             var position = controller.PlayerPawn.Value!.AbsOrigin;
@@ -45,19 +76,21 @@ namespace HuntDownTheEggs
 
             // Spawn the egg entity
             _plugin.EggManager.SpawnEgg(
-                new Vector(position.X, position.Y, position.Z + _plugin.Config.EggSetup.EggModelHeight), 
-                colorArg, 
+                new Vector(position.X, position.Y, position.Z + _plugin.Config.EggSetup.EggModelHeight),
+                colorArg,
                 $"{_plugin.EggManager._mapName}_${eggId}"
             );
-            
+
             try
             {
                 // Save the egg position
                 _plugin.EggManager.AddNewEgg(controller, colorArg);
+                controller.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["placedEgg"]}");
             }
             catch (Exception ex)
             {
                 _plugin.Logger.LogInformation($"Error saving egg: {ex}");
+            
             }
         }
 
@@ -68,25 +101,26 @@ namespace HuntDownTheEggs
 
             if (info.ArgCount < 2)
             {
-                controller.PrintToChat("Usage: !tpegg <id>");
+                controller.PrintToChat($"{_plugin.Localizer["prefix"]}Usage: !tpegg <id>");
                 return;
             }
 
             if (!int.TryParse(info.GetArg(1), out int id))
             {
-                controller.PrintToChat("Invalid egg ID format!");
+                controller.PrintToChat($"{_plugin.Localizer["prefix"]}Invalid egg ID format!");
                 return;
             }
 
             var egg = _plugin.EggManager!.GetEggById(id);
             if (egg == null)
             {
-                controller.PrintToChat("Could not find an egg with that ID!");
+                controller.PrintToChat($"{_plugin.Localizer["prefix"]}Could not find an egg with that ID!");
                 return;
             }
 
             var position = new Vector(egg.X, egg.Y, egg.Z);
             controller.PlayerPawn.Value!.Teleport(position);
+            controller.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["teleportToEgg", id]}");
         }
 
         private void RemoveEgg(CCSPlayerController? controller, CommandInfo info)
@@ -96,20 +130,20 @@ namespace HuntDownTheEggs
 
             if (info.ArgCount < 2)
             {
-                Server.PrintToChatAll("Usage: !removeegg <id>");
+                controller.PrintToChat($"{_plugin.Localizer["prefix"]}Usage: !removeegg <id>");
                 return;
             }
 
             if (!int.TryParse(info.GetArg(1), out int id))
             {
-                Server.PrintToChatAll("Invalid egg ID format!");
+                controller.PrintToChat($"{_plugin.Localizer["prefix"]}Invalid egg ID format!");
                 return;
             }
 
             var egg = _plugin.EggManager!.GetEggById(id);
             if (egg == null)
             {
-                Server.PrintToChatAll("Could not find an egg with that ID!");
+                controller.PrintToChat($"{_plugin.Localizer["prefix"]}Could not find an egg with that ID!");
                 return;
             }
 
@@ -118,35 +152,36 @@ namespace HuntDownTheEggs
             _plugin.EggManager.RemoveAllEggEntities();
 
             // Respawn all eggs
-            Server.PrintToChatAll("Regenerating eggs after removal...");
+            controller.PrintToChat($"{_plugin.Localizer["prefix"]}Regenerating eggs after removal...");
             _plugin.EggManager.SpawnAllEggs();
         }
 
         private void ReloadEggs(CCSPlayerController? controller, CommandInfo info)
         {
+            if(controller == null || !controller.PlayerPawn.IsValid) return;   
             if (controller != null && !AdminManager.PlayerHasPermissions(controller, _plugin.Config.EggSetup.EggRootFlag)) return;
-            
+
             _plugin.EggManager!.RemoveAllEggEntities();
             _plugin.EggManager.SpawnAllEggs();
-            
-            Server.PrintToChatAll("All eggs have been reloaded!");
+
+            controller!.PrintToChat($"{_plugin.Localizer["prefix"]}All eggs have been reloaded!");
         }
 
         private void TogglePlacingMode(CCSPlayerController? controller, CommandInfo info)
         {
             if (controller != null && !AdminManager.PlayerHasPermissions(controller, _plugin.Config.EggSetup.EggRootFlag)) return;
-            
+
             _plugin.EggManager!.PlacingMode = !_plugin.EggManager.PlacingMode;
-            Server.PrintToChatAll($"Egg placement mode: {_plugin.EggManager.PlacingMode}");
+            Server.PrintToChatAll($"{_plugin.Localizer["prefix"]}Egg placement mode: {_plugin.EggManager.PlacingMode}");
         }
 
         private void ShowMyEggs(CCSPlayerController? controller, CommandInfo info)
         {
             if (controller == null || !controller.PlayerPawn.IsValid) return;
-            
+
             var steamId = controller.AuthorizedSteamID?.SteamId64 ?? 0;
             if (steamId == 0) return;
-            
+
             var playerData = _plugin.PlayerManager!.GetPlayerData(steamId);
             if (playerData == null)
             {
@@ -156,30 +191,30 @@ namespace HuntDownTheEggs
 
             var totalEggs = playerData.TotalEggs + playerData.KillEggs;
             var myEggsMessage = PluginUtilities.ReplaceMessageNewlines(
-                _plugin.Localizer["myEggs", 
-                playerData.TotalEggs, 
-                playerData.KillEggs, 
-                totalEggs, 
-                playerData.Eggs.Count, 
+                _plugin.Localizer["myEggs",
+                playerData.TotalEggs,
+                playerData.KillEggs,
+                totalEggs,
+                playerData.Eggs.Count,
                 playerData.Map]
             );
-            
+
             controller.PrintToChat($"{myEggsMessage}");
         }
 
         private void ShowTopEggs(CCSPlayerController? controller, CommandInfo info)
         {
             if (controller == null || !controller.PlayerPawn.IsValid) return;
-            
+
             controller.PrintToChat($"{_plugin.Localizer["topListHeader"]}");
-            
+
             var topEggs = _plugin.PlayerManager!.GetTopEggs();
             if (topEggs.Count <= 0)
             {
                 controller.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["noEggsFound"]}");
                 return;
             }
-            
+
             int i = 0;
             foreach (var entry in topEggs)
             {
@@ -191,16 +226,16 @@ namespace HuntDownTheEggs
         private void ShowTopKillEggs(CCSPlayerController? controller, CommandInfo info)
         {
             if (controller == null || !controller.PlayerPawn.IsValid) return;
-            
+
             controller.PrintToChat($"{_plugin.Localizer["topKillEggsListHeader"]}");
-            
+
             var topKillEggs = _plugin.PlayerManager!.GetTopKillEggs();
             if (topKillEggs.Count <= 0)
             {
                 controller.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["noEggsFound"]}");
                 return;
             }
-            
+
             int i = 0;
             foreach (var entry in topKillEggs)
             {

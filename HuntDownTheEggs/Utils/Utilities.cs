@@ -1,11 +1,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Entities;
-using CounterStrikeSharp.API.Modules.Utils;
 using System.Drawing;
-
-using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
-using System.Numerics;
 
 namespace HuntDownTheEggs.Utils
 {
