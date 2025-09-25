@@ -167,7 +167,7 @@ namespace HuntDownTheEggs
                 entity.Collision.SolidType = SolidType_t.SOLID_VPHYSICS;
                 entity!.TakesDamage = true;
             }
-
+            var rotation = new QAngle(0, 0, 0);
 
             if (color == null)
             {
@@ -216,7 +216,13 @@ namespace HuntDownTheEggs
                 Utilities.SetStateChanged(entity, "CBaseEntity", "m_iHealth");
             }
 
-            entity.Teleport(position);
+            if(name.Contains("random"))
+            {
+                var randomYaw = _random.Next(0, 360);
+                rotation = new QAngle(0, randomYaw, 0);
+            }
+
+            entity.Teleport(position, rotation);
 
             entity.UseAnimGraph = false;
 
