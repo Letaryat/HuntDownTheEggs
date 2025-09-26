@@ -532,8 +532,15 @@ namespace HuntDownTheEggs
             {
                 _testEggsEntities.Remove(dynamicprop);
 
-                entities.Remove();
-                entities.AcceptInput("kill");
+                /*
+                entities.AcceptInput("SetAnimation", value: "challenge_coin_collect");
+
+                _plugin.AddTimer(0.4f, () =>
+                {
+                    entities.Remove();
+                    entities.AcceptInput("kill");
+                });
+                */
 
                 if (eggType == 0)
                 {
