@@ -108,7 +108,7 @@ namespace HuntDownTheEggs
                     _plugin.DebugLog($"Spawned egg on: {randomPos.X} {randomPos.Y} {randomPos.Z} | Number: {e}");
                 }
 
-                if (!_plugin.Localizer[$"recievedDesc.NewRoundRandomEggs"].ResourceNotFound)
+                if (!_plugin.Localizer[$"NewRoundRandomEggs"].ResourceNotFound)
                 {
                     Server.PrintToChatAll($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["NewRoundRandomEggs", e]}");
                 }
