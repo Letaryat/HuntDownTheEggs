@@ -558,18 +558,16 @@ namespace HuntDownTheEggs
             {
                 _testEggsEntities.Remove(dynamicprop);
 
-                /*
-                entities.AcceptInput("SetAnimation", value: "challenge_coin_collect");
+                if (!string.IsNullOrWhiteSpace(_plugin.Config.EggSetup.EggCollectAnimation))
+                {
+                    entities.AcceptInput("SetAnimation", value: _plugin.Config.EggSetup.EggCollectAnimation);
+                }
 
-                _plugin.AddTimer(0.4f, () =>
+                _plugin.AddTimer(0.3f, () =>
                 {
                     entities.Remove();
                     entities.AcceptInput("kill");
                 });
-                */
-
-                entities.Remove();
-                entities.AcceptInput("kill");
 
                 if (eggType == 0)
                 {

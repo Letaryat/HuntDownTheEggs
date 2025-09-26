@@ -16,6 +16,9 @@ namespace HuntDownTheEggs.Models
         [JsonPropertyName("EggAnimation")]
         public string EggAnimation { get; set; } = "challenge_coin_idle";
 
+        [JsonPropertyName("EggCollectAnimation")]
+        public string EggCollectAnimation { get; set; } = "challenge_coin_collect";
+
         [JsonPropertyName("EggModelHeight")]
         public float EggModelHeight { get; set; } = 0;
 
