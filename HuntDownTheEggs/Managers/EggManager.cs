@@ -262,6 +262,7 @@ namespace HuntDownTheEggs
 
             // Scale the egg
             entity!.CBodyComponent!.SceneNode!.GetSkeletonInstance().Scale = _plugin.Config.EggSetup.EggModelScale;
+            
             entity.Entity!.Name = $"pack-{name}";
 
             // Apply glow if enabled
