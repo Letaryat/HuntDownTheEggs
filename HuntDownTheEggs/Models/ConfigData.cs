@@ -60,6 +60,8 @@ namespace HuntDownTheEggs.Models
 
     public class ModesSetup
     {
+        [JsonPropertyName("SpawnEggsOnWarmup")]
+        public bool SpawnEggsOnWarmup { get; set; } = false;
 
         [JsonPropertyName("DeathMode")]
         public bool DeathMode { get; set; } = true;
@@ -87,9 +89,17 @@ namespace HuntDownTheEggs.Models
 
         [JsonPropertyName("SpawnRandomEggs")]
         public bool SpawnRandomEggs { get; set; } = false;
+        [JsonPropertyName("SpawnRandomEggsOnWarmup")]
+        public bool SpawnRandomEggsOnWarmup { get; set; } = false;
+
+        [JsonPropertyName("MinPlayersToSpawnRandomEggs")]
+        public int MinPlayersToSpawnRandomEggs { get; set; } = 1;
 
         [JsonPropertyName("NumberOfRandomEggs")]
-        public float NumberOfRandomEggs { get; set; } = 20;
+        public int NumberOfRandomEggs { get; set; } = 20;
+
+        [JsonPropertyName("SpawnRandomEggsByPercentageOfPlayers")]
+        public bool SpawnRandomEggsByPercentageOfPlayers { get; set; } = true;
     }
 
     public class PrizeSetup

@@ -13,5 +13,8 @@
     "topListPlayer": "{lightyellow}{green}{0}. {orange}{1} {green}- {lightyellow}{2}",
     "noEggsFound": "{red}No eggs has been found!",
     "eggShotHP": "Egg have {red}{0}{default} HP",
+    "NewRoundRandomEggs": "There are {lightyellow}{0} eggs randomly spawned this round! Find them all!",
+    "teleportToEgg": "{green}You teleported to the egg!",
+    "placedEgg": "{green}You placed an egg on cords: {0}",
     "recievedDesc.Punkty_sklepu": "Example of description of received custom reward in Config"
 }

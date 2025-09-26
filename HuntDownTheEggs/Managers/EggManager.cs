@@ -64,11 +64,37 @@ namespace HuntDownTheEggs
 
         public void SpawnAllEggs()
         {
-            var e = 0; 
+            var e = 0;
+
+            foreach (var egg in _eggs)
+            {
+                SpawnEgg(new Vector(egg.X, egg.Y, egg.Z), egg.ModelColor, $"letegg-{_mapName}_${egg.Id}");
+            }
+
             if (_plugin.Config.ModesSetup.SpawnRandomEggs)
             {
+                if (!_plugin.Config.ModesSetup.SpawnRandomEggsOnWarmup)
+                {
+                    if (PluginUtilities.IfWarmup())
+                    {
+                        _plugin.DebugLog("Warmup detected, not spawning random eggs on this round.");
+                        return;
+                    }
+                }
+                if (Utilities.GetPlayers().Where(p => p != null && p.IsValid && !p.IsBot && !p.IsHLTV).Count() < _plugin.Config.ModesSetup.MinPlayersToSpawnRandomEggs)
+                {
+                    _plugin.DebugLog($"Not enough players to spawn random eggs. Current: {Utilities.GetPlayers().Where(p => p != null && p.IsValid && !p.IsBot && !p.IsHLTV).Count()}, Required: {_plugin.Config.ModesSetup.MinPlayersToSpawnRandomEggs}");
+                    return;
+                }
+                int eggsToSpawn = _plugin.Config.ModesSetup.NumberOfRandomEggs;
+                if (_plugin.Config.ModesSetup.SpawnRandomEggsByPercentageOfPlayers)
+                {
+                    eggsToSpawn = (int)MathF.Ceiling(
+                        _plugin.Config.ModesSetup.NumberOfRandomEggs * (PluginUtilities.CalculatePlayerPercentage() / 100f)
+                    );
+                }
                 _plugin.Logger.LogInformation("Spawning random eggs");
-                for (int i = 0; i < _plugin.Config.ModesSetup.NumberOfRandomEggs; i++)
+                for (int i = 0; i < eggsToSpawn; i++)
                 {
                     Vector? randomPos = NavMesh.GetRandomPosition();
 
@@ -80,13 +106,13 @@ namespace HuntDownTheEggs
                     e++;
                     SpawnEgg(new Vector(randomPos.X, randomPos.Y, randomPos.Z), "default", "$random_egg");
                     _plugin.DebugLog($"Spawned egg on: {randomPos.X} {randomPos.Y} {randomPos.Z} | Number: {e}");
-                    
                 }
-            }
 
-            foreach (var egg in _eggs)
-            {
-                SpawnEgg(new Vector(egg.X, egg.Y, egg.Z), egg.ModelColor, $"letegg-{_mapName}_${egg.Id}");
+                if (!_plugin.Localizer[$"recievedDesc.NewRoundRandomEggs"].ResourceNotFound)
+                {
+                    Server.PrintToChatAll($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["NewRoundRandomEggs", e]}");
+                }
+
             }
         }
 
@@ -216,7 +242,7 @@ namespace HuntDownTheEggs
                 Utilities.SetStateChanged(entity, "CBaseEntity", "m_iHealth");
             }
 
-            if(name.Contains("random"))
+            if (name.Contains("random"))
             {
                 var randomYaw = _random.Next(0, 360);
                 rotation = new QAngle(0, randomYaw, 0);
@@ -526,7 +552,7 @@ namespace HuntDownTheEggs
         public void RemoveEntityOnShoot(CDynamicProp dynamicprop, CEntityInstance entities, CCSPlayerController player, int eggType)
         {
             // eggtype: 0 - Kill, 1 - Placed by admin, 2- Random spawned eggs
-            
+
             var steamId = player.AuthorizedSteamID?.SteamId64 ?? player.SteamID;
             if (dynamicprop.Health <= 0)
             {
@@ -541,6 +567,9 @@ namespace HuntDownTheEggs
                     entities.AcceptInput("kill");
                 });
                 */
+
+                entities.Remove();
+                entities.AcceptInput("kill");
 
                 if (eggType == 0)
                 {

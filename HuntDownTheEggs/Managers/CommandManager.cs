@@ -1,3 +1,4 @@
+using System.Drawing;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
@@ -85,12 +86,13 @@ namespace HuntDownTheEggs
             {
                 // Save the egg position
                 _plugin.EggManager.AddNewEgg(controller, colorArg);
-                controller.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["placedEgg"]}");
+                controller.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["placedEgg", position]}");
             }
             catch (Exception ex)
             {
                 _plugin.Logger.LogInformation($"Error saving egg: {ex}");
-            
+                controller.PrintToChat($"{_plugin.Localizer["prefix"]} Something went wrong while saving the egg!");
+        
             }
         }
 

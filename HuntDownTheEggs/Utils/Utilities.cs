@@ -53,5 +53,38 @@ namespace HuntDownTheEggs.Utils
 
             glow.AcceptInput("SetParent", entity, glow, "!activator");
         }
+
+        /// <summary>
+        /// Simple check if the current round is in warmup phase
+        /// </summary>
+        public static bool IfWarmup()
+        {
+            var gamerules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").FirstOrDefault()?.GameRules;
+            if (gamerules == null)
+            {
+                return false;
+            }
+            if (gamerules.WarmupPeriod)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Getting the percentage of players in the server
+        /// </summary>
+        public static float CalculatePlayerPercentage()
+        {
+
+            var players = Utilities.GetPlayers().Where(p => p != null && p.IsValid && !p.IsBot && !p.IsHLTV).Count();
+            var slots = Server.MaxPlayers;
+
+            return (float)players / slots * 100;
+        }
+
     }
 }

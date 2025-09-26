@@ -13,5 +13,8 @@
     "topListPlayer": "{lightyellow}{green}{0}. {orange}{1} {green}- {lightyellow}{2}",
     "noEggsFound": "{red}Nie znaleziono żadnych jajek!",
     "eggShotHP": "Jajeczkowi zostalo {red}{0}{default} HP",
+    "NewRoundRandomEggs": "Na mapie pojawiło się {lightyellow}{0} losowo rozmieszczonych jajek! Szukaj ich aby zdobywac nagrody!",
+    "teleportToEgg": "{green}Teleportujesz sie do jajka!",
+    "placedEgg": "{green}Postawiłeś jajko na koordynatach: {0}",
     "recievedDesc.Punkty_sklepu": "Przykład opisu uzyskanej nagrody z configu"
 }

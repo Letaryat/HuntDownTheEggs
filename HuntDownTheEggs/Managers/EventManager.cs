@@ -74,6 +74,15 @@ namespace HuntDownTheEggs
             // So it deserialize json again:
             _plugin.EggManager!.CheckIfEggsAreThere();
 
+            if (!_plugin.Config.ModesSetup.SpawnEggsOnWarmup)
+            {
+                if (PluginUtilities.IfWarmup())
+                {
+                    _plugin.DebugLog("Warmup detected, not spawning eggs on this round.");
+                    return HookResult.Continue;
+                }
+            }
+            
             // Ensure eggs are spawned at round start
             _plugin.EggManager!.SpawnAllEggs();
 
