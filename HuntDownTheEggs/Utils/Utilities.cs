@@ -81,9 +81,10 @@ namespace HuntDownTheEggs.Utils
         {
 
             var players = Utilities.GetPlayers().Where(p => p != null && p.IsValid && !p.IsBot && !p.IsHLTV).Count();
-            var slots = Server.MaxPlayers;
+            var fakePlayers = Utilities.GetPlayers().Where(p => p.IsHLTV || p.IsBot).Count();
+            var slots = Server.MaxPlayers - fakePlayers;
 
-            return (float)players / slots * 100;
+            return (float)players / slots * 100f;
         }
 
     }
