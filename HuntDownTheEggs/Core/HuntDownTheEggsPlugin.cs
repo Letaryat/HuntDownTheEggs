@@ -1,5 +1,7 @@
 using CounterStrikeSharp.API.Core;
+using HuntDownTheEggs.Extensions;
 using Microsoft.Extensions.Logging;
+
 
 namespace HuntDownTheEggs.Core
 {
@@ -8,7 +10,7 @@ namespace HuntDownTheEggs.Core
         public override string ModuleName => "Hunt Down The Eggs";
         public override string ModuleAuthor => "Letaryat & Mesharsky";
         public override string ModuleDescription => "https://github.com/Letaryat/ & https://github.com/Mesharsky/";
-        public override string ModuleVersion => "1.2";
+        public override string ModuleVersion => "1.3";
 
         // Managers
         public EggManager? EggManager { get; private set; }
@@ -19,30 +21,32 @@ namespace HuntDownTheEggs.Core
 
         // Configuration
         public required PluginConfig Config { get; set; }
-        
+
         // Plugin instance for global access
         public static HuntDownTheEggsPlugin? Instance { get; private set; }
 
         public override void Load(bool hotReload)
         {
             Instance = this;
-            
+
             // Initialize managers
             DatabaseManager = new DatabaseManager(this);
             PlayerManager = new PlayerManager(this);
             EggManager = new EggManager(this);
             CommandManager = new CommandManager(this);
             EventManager = new EventManager(this);
-            
+
             // Register event handlers through the event manager
             EventManager.RegisterEvents();
-            
+
             // Register commands through the command manager
             CommandManager.RegisterCommands();
 
             // Initialize database connection
             DatabaseManager?.InitializeConnection();
-            
+
+            NavMesh.Init(this);
+
             Logger.LogInformation($"HuntDownTheEggs v{ModuleVersion} has been loaded!");
         }
 
@@ -50,7 +54,7 @@ namespace HuntDownTheEggs.Core
         {
             // Save all player egg data before unloading
             Task.Run(PlayerManager!.SaveAllPlayersAsync).Wait();
-            
+
             Logger.LogInformation("HuntDownTheEggs has been unloaded!");
         }
 
@@ -58,7 +62,7 @@ namespace HuntDownTheEggs.Core
         {
             Config = config;
         }
-        
+
         public void DebugLog(string message)
         {
             if (Config.Debug)

@@ -1,9 +1,14 @@
 # HuntDownTheEggs
+
 <p align="center">
     <img src="img/huntdown.jpg" width="200">
 </p>
+
+[![poor-developer discord server](https://i.imgur.com/8L6KsUZ.png)](https://discord.gg/mEmdyqM3Um)
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/H2H8TK0L9)
+
 A simple Easter egg hunt plugin for Counter-Strike 2 servers using CounterStrikeSharp. <br>
-This plugin allows server owners to place custom easter eggs around the map (which are spawned on round start), drop them when a player is killed, or both. Players can collect these eggs, with all data stored in a MySQL database.<br>
+This plugin allows server owners to place custom easter eggs around the map (which are spawned on round start), drop them when a player is killed or spawn them randomly on the map. Players can collect these eggs, with all data stored in a MySQL database.<br>
 Additionally, server owners can configure the eggs to grant random rewards by executing custom commands when an egg is picked up. Rewards can be assigned different rarity levels, each with its own drop chance.<br>
 
 ## [📌] Dependiencies
@@ -25,6 +30,8 @@ If you have any more problems or would like to know more, [please visit wiki.](h
 - [Mesharsky](https://github.com/Mesharsky/) - Complete plugin structure rework and for fixing issues.
 - [CS2-Ranks](https://github.com/partiusfabaa/cs2-ranks), [SimpleAdmin](github.com/daffyyyy/CS2-SimpleAdmin) used as an examples of Dapper and MySQLConnector, 
 - [Dliix66](https://discord.com/channels/1160907911501991946/1311638450881167523/1311973008122052618) - Method for glow effect,
+- [21Joakim](https://gist.github.com/21Joakim/6a264623e4ac8ae217e0eb15fc43e3e5#file-navmesh-cs) - Navmesh,
+- [oqyh / GoldKingZ](https://github.com/oqyh/cs2-Prop-Health-GoldKingZ) - OnTakeDamage function for props,
 - CounterStrikeSharp Discord,
 
 ### [💥] Model

@@ -14,11 +14,11 @@ namespace HuntDownTheEggs
         public void InitializeConnection()
         {
             var config = _plugin.Config;
-            
-            if (string.IsNullOrEmpty(config.DBHost) || 
-                string.IsNullOrEmpty(config.DBName) || 
-                string.IsNullOrEmpty(config.DBPassword) || 
-                string.IsNullOrEmpty(config.DBUsername))
+
+            if (string.IsNullOrEmpty(config.DBSetup.DBHost) ||
+                string.IsNullOrEmpty(config.DBSetup.DBName) ||
+                string.IsNullOrEmpty(config.DBSetup.DBPassword) ||
+                string.IsNullOrEmpty(config.DBSetup.DBUsername))
             {
                 _plugin.Logger.LogInformation("MySQL database configuration is incomplete!");
                 return;
@@ -26,13 +26,13 @@ namespace HuntDownTheEggs
 
             MySqlConnectionStringBuilder builder = new()
             {
-                Server = config.DBHost,
-                UserID = config.DBUsername,
-                Port = config.DBPort,
-                Password = config.DBPassword,
-                Database = config.DBName,
+                Server = config.DBSetup.DBHost,
+                UserID = config.DBSetup.DBUsername,
+                Port = config.DBSetup.DBPort,
+                Password = config.DBSetup.DBPassword,
+                Database = config.DBSetup.DBName,
             };
-            
+
             _connectionString = builder.ConnectionString;
 
             try
@@ -40,7 +40,7 @@ namespace HuntDownTheEggs
                 using var connection = new MySqlConnection(_connectionString);
                 connection.Open();
                 _plugin.Logger.LogInformation("Connected to MySQL database");
-                
+
                 // Create required tables if they don't exist
                 string createTablesQuery = @"
                 CREATE TABLE IF NOT EXISTS EggHunt(
@@ -54,8 +54,14 @@ namespace HuntDownTheEggs
                     Name VARCHAR(255),
                     Map VARCHAR(255),
                     EggsPicked INT
+                );
+                CREATE TABLE IF NOT EXISTS EggRandom(
+                    SteamID VARCHAR(255),
+                    Name VARCHAR(255),
+                    Map VARCHAR(255),
+                    EggsPicked INT
                 );";
-                
+
                 connection.Execute(createTablesQuery);
             }
             catch (Exception ex)
@@ -76,7 +82,7 @@ namespace HuntDownTheEggs
             {
                 using var connection = new MySqlConnection(_connectionString);
                 await connection.OpenAsync();
-                
+
                 var eggIds = await connection.QueryFirstOrDefaultAsync<string>(
                     "SELECT EggID FROM EggHunt WHERE SteamID = @steamId AND Map = @mapName",
                     new { steamId, mapName });
@@ -85,12 +91,16 @@ namespace HuntDownTheEggs
                     "SELECT COALESCE(SUM(LENGTH(eh.EggID) - LENGTH(REPLACE(eh.EggID, ',', '')) + 1), 0) AS TotalEggs " +
                     "FROM EggHunt eh WHERE eh.SteamID = @steamId",
                     new { steamId });
-                
+
                 var killEggs = await connection.QueryFirstOrDefaultAsync<int>(
                     "SELECT COALESCE(EggsPicked, 0) FROM EggKills WHERE SteamID = @steamId AND Map = @mapName",
                     new { steamId, mapName });
 
-                if (eggIds == null) 
+                var randomEggs = await connection.QueryFirstOrDefaultAsync<int>(
+                    "SELECT COALESCE(EggsPicked, 0) FROM EggKills WHERE SteamID = @steamId AND Map = @mapName",
+                    new { steamId, mapName });
+
+                if (eggIds == null)
                 {
                     return new PlayerData
                     {
@@ -98,6 +108,7 @@ namespace HuntDownTheEggs
                         Map = mapName,
                         Eggs = [],
                         KillEggs = killEggs,
+                        RandomEggs = randomEggs,
                         TotalEggs = totalEggs
                     };
                 }
@@ -113,6 +124,7 @@ namespace HuntDownTheEggs
                     Map = mapName,
                     Eggs = eggs,
                     KillEggs = killEggs,
+                    RandomEggs = randomEggs,
                     TotalEggs = totalEggs
                 };
             }
@@ -143,22 +155,52 @@ namespace HuntDownTheEggs
                 {
                     await connection.ExecuteAsync(
                         "UPDATE EggKills SET EggsPicked = @eggs, Name = @name WHERE SteamID = @steamId AND Map = @map",
-                        new { 
-                            steamId = playerData.SteamId, 
-                            eggs = playerData.KillEggs, 
-                            map = playerData.Map, 
-                            name = playerData.PlayerName 
+                        new
+                        {
+                            steamId = playerData.SteamId,
+                            eggs = playerData.KillEggs,
+                            map = playerData.Map,
+                            name = playerData.PlayerName
                         });
                 }
                 else
                 {
                     await connection.ExecuteAsync(
                         "INSERT INTO EggKills (SteamID, Map, EggsPicked, Name) VALUES (@steamId, @map, @eggs, @name)",
-                        new { 
-                            steamId = playerData.SteamId, 
-                            map = playerData.Map, 
+                        new
+                        {
+                            steamId = playerData.SteamId,
+                            map = playerData.Map,
                             eggs = playerData.KillEggs,
-                            name = playerData.PlayerName 
+                            name = playerData.PlayerName
+                        });
+                }
+
+                // Save Random eggs data
+                var randomEggsExist = await CheckRandomEggsExistAsync(connection, playerData.SteamId, playerData.Map);
+
+                if (randomEggsExist)
+                {
+                    await connection.ExecuteAsync(
+                        "UPDATE EggRandom SET EggsPicked = @eggs, Name = @name WHERE SteamID = @steamId AND Map = @map",
+                        new
+                        {
+                            steamId = playerData.SteamId,
+                            eggs = playerData.RandomEggs,
+                            map = playerData.Map,
+                            name = playerData.PlayerName
+                        });
+                }
+                else
+                {
+                    await connection.ExecuteAsync(
+                        "INSERT INTO EggRandom (SteamID, Map, EggsPicked, Name) VALUES (@steamId, @map, @eggs, @name)",
+                        new
+                        {
+                            steamId = playerData.SteamId,
+                            map = playerData.Map,
+                            eggs = playerData.RandomEggs,
+                            name = playerData.PlayerName
                         });
                 }
 
@@ -195,22 +237,24 @@ namespace HuntDownTheEggs
                 {
                     await connection.ExecuteAsync(
                         "UPDATE EggHunt SET EggID = @eggsString, Name = @name WHERE SteamID = @steamId AND Map = @map",
-                        new { 
-                            eggsString = combinedEggsStr, 
-                            steamId = playerData.SteamId, 
+                        new
+                        {
+                            eggsString = combinedEggsStr,
+                            steamId = playerData.SteamId,
                             map = playerData.Map,
-                            name = playerData.PlayerName 
+                            name = playerData.PlayerName
                         });
                 }
                 else
                 {
                     await connection.ExecuteAsync(
                         "INSERT INTO EggHunt (SteamID, Map, EggID, Name) VALUES (@steamId, @map, @eggsString, @name)",
-                        new { 
-                            steamId = playerData.SteamId, 
-                            map = playerData.Map, 
+                        new
+                        {
+                            steamId = playerData.SteamId,
+                            map = playerData.Map,
                             eggsString = combinedEggsStr,
-                            name = playerData.PlayerName 
+                            name = playerData.PlayerName
                         });
                 }
             }
@@ -238,7 +282,7 @@ namespace HuntDownTheEggs
                       ORDER BY TotalEggs DESC 
                       LIMIT 5;");
 
-                return results?.ToDictionary(row => row.Name, row => row.TotalEggs) 
+                return results?.ToDictionary(row => row.Name, row => row.TotalEggs)
                        ?? [];
             }
             catch (Exception ex)
@@ -265,7 +309,34 @@ namespace HuntDownTheEggs
                       LIMIT 5;",
                     new { map });
 
-                return results?.ToDictionary(row => row.Name, row => row.EggsPicked) 
+                return results?.ToDictionary(row => row.Name, row => row.EggsPicked)
+                       ?? [];
+            }
+            catch (Exception ex)
+            {
+                _plugin.Logger.LogInformation($"Error getting top kill eggs: {ex}");
+                return [];
+            }
+        }
+
+        public async Task<Dictionary<string, int>> GetTopRandomEggsAsync(string map)
+        {
+            if (string.IsNullOrEmpty(_connectionString)) return [];
+
+            try
+            {
+                using var connection = new MySqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                var results = await connection.QueryAsync<(string Name, int EggsPicked)>(
+                    @"SELECT `Name`, `EggsPicked` 
+                      FROM `EggRandom` 
+                      WHERE `Map` = @map 
+                      ORDER BY `EggsPicked` DESC 
+                      LIMIT 5;",
+                    new { map });
+
+                return results?.ToDictionary(row => row.Name, row => row.EggsPicked)
                        ?? [];
             }
             catch (Exception ex)
@@ -295,6 +366,21 @@ namespace HuntDownTheEggs
             try
             {
                 string sql = "SELECT COUNT(1) FROM `EggKills` WHERE SteamID = @steamId AND Map = @mapName";
+                var exists = await connection.ExecuteScalarAsync<bool>(sql, new { steamId, mapName });
+                return exists;
+            }
+            catch (Exception ex)
+            {
+                _plugin.Logger.LogInformation($"Error checking kill eggs existence: {ex}");
+                return false;
+            }
+        }
+
+        private async Task<bool> CheckRandomEggsExistAsync(MySqlConnection connection, ulong steamId, string mapName)
+        {
+            try
+            {
+                string sql = "SELECT COUNT(1) FROM `EggRandom` WHERE SteamID = @steamId AND Map = @mapName";
                 var exists = await connection.ExecuteScalarAsync<bool>(sql, new { steamId, mapName });
                 return exists;
             }

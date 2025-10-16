@@ -1,6 +1,5 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Entities;
 using System.Drawing;
 
 namespace HuntDownTheEggs.Utils
@@ -38,12 +37,12 @@ namespace HuntDownTheEggs.Utils
                 return;
 
             CDynamicProp glow = Utilities.CreateEntityByName<CDynamicProp>("prop_dynamic")!;
-            glow.Spawnflags = 256;
+            glow.Spawnflags = 0;
             glow.Render = Color.Transparent;
             glow.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(glow.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
             glow.SetModel(entity.CBodyComponent!.SceneNode!.GetSkeletonInstance().ModelState.ModelName);
             glow.DispatchSpawn();
-            
+
             glow.Glow.GlowColorOverride = glowColor;
             glow.Glow.GlowRange = range;
             glow.Glow.GlowRangeMin = 0;
@@ -51,7 +50,42 @@ namespace HuntDownTheEggs.Utils
             glow.Glow.GlowType = 3;
 
             glow.Teleport(entity.AbsOrigin, entity.AbsRotation, entity.AbsVelocity);
+
             glow.AcceptInput("SetParent", entity, glow, "!activator");
         }
+
+        /// <summary>
+        /// Simple check if the current round is in warmup phase
+        /// </summary>
+        public static bool IfWarmup()
+        {
+            var gamerules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").FirstOrDefault()?.GameRules;
+            if (gamerules == null)
+            {
+                return false;
+            }
+            if (gamerules.WarmupPeriod)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Getting the percentage of players in the server
+        /// </summary>
+        public static float CalculatePlayerPercentage()
+        {
+
+            var players = Utilities.GetPlayers().Where(p => p != null && p.IsValid && !p.IsBot && !p.IsHLTV).Count();
+            var fakePlayers = Utilities.GetPlayers().Where(p => p.IsHLTV || p.IsBot).Count();
+            var slots = Server.MaxPlayers - fakePlayers;
+
+            return (float)players / slots * 100f;
+        }
+
     }
 }
