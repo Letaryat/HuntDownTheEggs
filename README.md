@@ -2,6 +2,10 @@
 <p align="center">
     <img src="img/huntdown.jpg" width="200">
 </p>
+<br/>
+[![poor-developer discord server](https://i.imgur.com/8L6KsUZ.png)](https://discord.gg/mEmdyqM3Um)
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/H2H8TK0L9)
+
 A simple Easter egg hunt plugin for Counter-Strike 2 servers using CounterStrikeSharp. <br>
 This plugin allows server owners to place custom easter eggs around the map (which are spawned on round start), drop them when a player is killed, or both. Players can collect these eggs, with all data stored in a MySQL database.<br>
 Additionally, server owners can configure the eggs to grant random rewards by executing custom commands when an egg is picked up. Rewards can be assigned different rarity levels, each with its own drop chance.<br>
