@@ -134,6 +134,8 @@ namespace HuntDownTheEggs.Models
         public List<string> ShowTopEggsCommands { get; set; } = ["css_topeggs"];
         [JsonPropertyName("ShowTopKillEggsCommands")]
         public List<string> ShowTopKillEggsCommands { get; set; } = ["css_topkilleggs"];
+        [JsonPropertyName("ShowTopRandomEggsCommands")]
+        public List<string> ShowTopRandomEggsCommands { get; set; } = ["css_toprandomeggs"];
     }
 
 

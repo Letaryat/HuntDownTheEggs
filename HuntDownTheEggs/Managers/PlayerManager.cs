@@ -188,5 +188,11 @@ namespace HuntDownTheEggs
         {
             return _topKillEggsCache;
         }
+
+        public Dictionary<string, int> GetTopRandomEggs()
+        {
+            return _topRandomEggsCache;
+        }
+
     }
 }

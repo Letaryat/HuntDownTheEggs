@@ -58,7 +58,10 @@ namespace HuntDownTheEggs
                 {
                     _plugin.AddCommand(cmd, "Print top 5 kill eggs in chat", ShowTopKillEggs);
                 }
-
+                foreach (var cmd in _plugin.Config.CommandsSetup.ShowTopRandomEggsCommands)
+                {
+                    _plugin.AddCommand(cmd, "Print top 5 kill eggs in chat", ShowTopRandomEggs);
+                }
                 _plugin.DebugLog("Commands registered.");
             }
 
@@ -92,7 +95,7 @@ namespace HuntDownTheEggs
             {
                 _plugin.Logger.LogInformation($"Error saving egg: {ex}");
                 controller.PrintToChat($"{_plugin.Localizer["prefix"]} Something went wrong while saving the egg!");
-        
+
             }
         }
 
@@ -160,7 +163,7 @@ namespace HuntDownTheEggs
 
         private void ReloadEggs(CCSPlayerController? controller, CommandInfo info)
         {
-            if(controller == null || !controller.PlayerPawn.IsValid) return;   
+            if (controller == null || !controller.PlayerPawn.IsValid) return;
             if (controller != null && !AdminManager.PlayerHasPermissions(controller, _plugin.Config.EggSetup.EggRootFlag)) return;
 
             _plugin.EggManager!.RemoveAllEggEntities();
@@ -232,6 +235,27 @@ namespace HuntDownTheEggs
             controller.PrintToChat($"{_plugin.Localizer["topKillEggsListHeader"]}");
 
             var topKillEggs = _plugin.PlayerManager!.GetTopKillEggs();
+            if (topKillEggs.Count <= 0)
+            {
+                controller.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["noEggsFound"]}");
+                return;
+            }
+
+            int i = 0;
+            foreach (var entry in topKillEggs)
+            {
+                i++;
+                controller.PrintToChat($"{_plugin.Localizer["topListPlayer", i, entry.Key, entry.Value]}");
+            }
+        }
+
+        private void ShowTopRandomEggs(CCSPlayerController? controller, CommandInfo info)
+        {
+            if (controller == null || !controller.PlayerPawn.IsValid) return;
+
+            controller.PrintToChat($"{_plugin.Localizer["topRandomEggsListHeader"]}");
+
+            var topKillEggs = _plugin.PlayerManager!.GetTopRandomEggs();
             if (topKillEggs.Count <= 0)
             {
                 controller.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["noEggsFound"]}");
