@@ -2,6 +2,7 @@ using CounterStrikeSharp.API.Core;
 using HuntDownTheEggs.Extensions;
 using Microsoft.Extensions.Logging;
 
+
 namespace HuntDownTheEggs.Core
 {
     public class HuntDownTheEggsPlugin : BasePlugin, IPluginConfig<PluginConfig>
@@ -20,10 +21,10 @@ namespace HuntDownTheEggs.Core
 
         // Configuration
         public required PluginConfig Config { get; set; }
-        
+
         // Plugin instance for global access
         public static HuntDownTheEggsPlugin? Instance { get; private set; }
-    
+
         public override void Load(bool hotReload)
         {
             Instance = this;
@@ -53,7 +54,7 @@ namespace HuntDownTheEggs.Core
         {
             // Save all player egg data before unloading
             Task.Run(PlayerManager!.SaveAllPlayersAsync).Wait();
-            
+
             Logger.LogInformation("HuntDownTheEggs has been unloaded!");
         }
 
@@ -61,7 +62,7 @@ namespace HuntDownTheEggs.Core
         {
             Config = config;
         }
-        
+
         public void DebugLog(string message)
         {
             if (Config.Debug)
