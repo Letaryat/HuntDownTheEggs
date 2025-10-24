@@ -339,9 +339,9 @@ namespace HuntDownTheEggs
             Server.ExecuteCommand(PluginUtilities.ReplacePlayerParameters(randomPrize.Command, controller));
         }
 
-        public void TrySpawnDeathEgg(CCSPlayerController controller)
+        public void TrySpawnDeathEgg(CCSPlayerController controller, CCSPlayerController victim)
         {
-            if (controller == null || !controller.PlayerPawn.IsValid || controller.PlayerPawn.Value == null)
+            if (controller == null || !controller.PlayerPawn.IsValid || controller.PlayerPawn.Value == null || victim == null)
                 return;
 
             float chance = _plugin.Config.ModesSetup.ChanceToSpawn;
@@ -355,7 +355,7 @@ namespace HuntDownTheEggs
                     controller.PlayerPawn.Value.AbsOrigin.Z + _plugin.Config.EggSetup.EggModelHeight
                 );
 
-                SpawnEgg(position, "default", $"$kill_{controller.UserId}");
+                SpawnEgg(position, "default", $"$kill_{victim.UserId}");
             }
         }
 

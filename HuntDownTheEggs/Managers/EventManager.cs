@@ -56,11 +56,11 @@ namespace HuntDownTheEggs
             // Spawn egg based on config setting
             if (_plugin.Config.ModesSetup.SpawnDeathEggOnVictim)
             {
-                _plugin.EggManager!.TrySpawnDeathEgg(victim);
+                _plugin.EggManager!.TrySpawnDeathEgg(victim, victim);
             }
             else
             {
-                _plugin.EggManager!.TrySpawnDeathEgg(attacker);
+                _plugin.EggManager!.TrySpawnDeathEgg(attacker, victim);
             }
 
             return HookResult.Continue;
@@ -484,6 +484,12 @@ namespace HuntDownTheEggs
                 // Handle kill-type eggs
                 if (entityName.Contains("kill"))
                 {
+                    if (_plugin.Config.EggSetup.ShowKillEggOnlyForKiller && !entityName.Contains($"{player.UserId}"))
+                    {
+                        player.PrintToCenter($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["onlyForKiller"]}");
+                        return HookResult.Continue;
+                    }
+                    
                     dynamicProp.Health -= (int)Math.Round(damageinfo.Damage);
 
                     if (dynamicProp.Health > 0)
