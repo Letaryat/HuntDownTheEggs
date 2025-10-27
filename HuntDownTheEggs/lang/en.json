@@ -7,7 +7,7 @@
     "killEgg": "{lightyellow}You picked up the kill egg!",
     "randomEgg": "{lightyellow}You picked up random egg!",
     "playerNotFound": "{darkred}Player not found!",
-    "myEggs": "{green}************{lightyellow}[EggHunting]{green}************\n{default}Your eggs in total:{lime}{2}!\n{default}You already found: {orange}{0} eggs!\n{default}Your kill eggs:{orange}{1}\n{default}Found eggs on {orange}{4}{default}: {lime}{3}",
+    "myEggs": "{green}************{lightyellow}[EggHunting]{green}************\n{default}Your eggs in total:{lime}{2}!\n{default}You already found: {orange}{0} eggs!\n{default}Your kill eggs:{orange}{1}\n{default}Your random Eggs: {orange}{5}\n{default}Found eggs on {orange}{4}{default}: {lime}{3}",
     "topListHeader": "{green}************{lightyellow}[TOPLIST]{green}************\n{default}",
     "topKillEggsListHeader": "{green}************{lightyellow}[TOP KILL EGGS]{green}************\n{default}",
     "topRandomEggsListHeader": "{green}************{lightyellow}[TOP RANDOM EGGS]{green}************\n{default}",
