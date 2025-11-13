@@ -1,12 +1,13 @@
-{
+﻿{
     "prefix": "{lime}[EggHunting] {default}",
     "welcomeMessage": "{green}************{lightyellow}[EggHunting]{green}************\nThere are {lightyellow}{0} eggs in total on this map!\n{lime}Additionaly, each round in random places there will be {1} eggs to find!\n Try to find them all!\n Good luck!",
     "recievedPrize": "You picked up the egg: {0} with rarity: {1} {default}",
-    "pickedEggNoPrize": "You picked up the egg!",
+    "pickedEggNoPrize": "You picked up the egg!, You have total: {0}",
     "alreadyOwn": "{orange}You already found this egg!!",
     "killEgg": "{lightyellow}You picked up the kill egg!",
     "randomEgg": "{lightyellow}You picked up random egg!",
     "playerNotFound": "{darkred}Player not found!",
+    "onlyForKiller": "For killer",
     "myEggs": "{green}************{lightyellow}[EggHunting]{green}************\n{default}Your eggs in total:{lime}{2}!\n{default}You already found: {orange}{0} eggs!\n{default}Your kill eggs:{orange}{1}\n{default}Your random Eggs: {orange}{5}\n{default}Found eggs on {orange}{4}{default}: {lime}{3}",
     "topListHeader": "{green}************{lightyellow}[TOPLIST]{green}************\n{default}",
     "topKillEggsListHeader": "{green}************{lightyellow}[TOP KILL EGGS]{green}************\n{default}",

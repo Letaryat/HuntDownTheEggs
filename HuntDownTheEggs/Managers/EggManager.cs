@@ -319,7 +319,9 @@ namespace HuntDownTheEggs
 
             if (_plugin.Config.PrizeSetup.ReceivePrize == false || _plugin.Config.PrizeSetup.EggsTypes.Count() == 0)
             {
-                controller.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["pickedEggNoPrize"]}");
+                var pData = _plugin.PlayerManager!.GetPlayerData(controller.SteamID);
+                var total = pData!.RandomEggs + pData.KillEggs;
+                controller.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["pickedEggNoPrize", total]}");
                 return;
             }
 
@@ -566,6 +568,7 @@ namespace HuntDownTheEggs
 
                 _plugin.AddTimer(0.3f, () =>
                 {
+                    if (!entities.IsValid) return;
                     entities.Remove();
                     entities.AcceptInput("kill");
                 });
@@ -573,7 +576,7 @@ namespace HuntDownTheEggs
                 if (eggType == 0)
                 {
                     _plugin.PlayerManager!.IncrementKillEggs(steamId);
-                    player.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["killEgg"]}");
+                    //player.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["killEgg"]}");
                 }
                 else if (eggType == 1)
                 {
@@ -582,7 +585,7 @@ namespace HuntDownTheEggs
                 else if (eggType == 2)
                 {
                     _plugin.PlayerManager!.IncrementRandomEggs(steamId);
-                    player.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["randomEgg"]}");
+                    //player.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["randomEgg"]}");
                 }
 
                 GiveEggPrize(player);
