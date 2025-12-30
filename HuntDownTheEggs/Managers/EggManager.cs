@@ -576,7 +576,7 @@ namespace HuntDownTheEggs
                 if (eggType == 0)
                 {
                     _plugin.PlayerManager!.IncrementKillEggs(steamId);
-                    //player.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["killEgg"]}");
+                    player.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["killEgg"]}");
                 }
                 else if (eggType == 1)
                 {
@@ -585,7 +585,7 @@ namespace HuntDownTheEggs
                 else if (eggType == 2)
                 {
                     _plugin.PlayerManager!.IncrementRandomEggs(steamId);
-                    //player.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["randomEgg"]}");
+                    player.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["randomEgg"]}");
                 }
 
                 GiveEggPrize(player);
