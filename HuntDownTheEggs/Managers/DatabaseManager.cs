@@ -97,7 +97,7 @@ namespace HuntDownTheEggs
                     new { steamId, mapName });
 
                 var randomEggs = await connection.QueryFirstOrDefaultAsync<int>(
-                    "SELECT COALESCE(EggsPicked, 0) FROM EggKills WHERE SteamID = @steamId AND Map = @mapName",
+                    "SELECT COALESCE(EggsPicked, 0) FROM EggRandom WHERE SteamID = @steamId AND Map = @mapName",
                     new { steamId, mapName });
 
                 if (eggIds == null)

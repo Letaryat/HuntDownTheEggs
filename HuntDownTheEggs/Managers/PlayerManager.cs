@@ -194,5 +194,15 @@ namespace HuntDownTheEggs
             return _topRandomEggsCache;
         }
 
+        public int GetPlayerRandomEggs(ulong steamId)
+        {
+            return _players[steamId].RandomEggs;
+        }
+
+        public int GetPlayerKillEggs(ulong steamId)
+        {
+            return _players[steamId].KillEggs;
+        }
+
     }
 }

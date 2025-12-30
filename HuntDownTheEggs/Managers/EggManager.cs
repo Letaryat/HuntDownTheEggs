@@ -319,7 +319,9 @@ namespace HuntDownTheEggs
 
             if (_plugin.Config.PrizeSetup.ReceivePrize == false || _plugin.Config.PrizeSetup.EggsTypes.Count() == 0)
             {
-                controller.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["pickedEggNoPrize"]}");
+                var pData = _plugin.PlayerManager!.GetPlayerData(controller.SteamID);
+                var total = pData!.RandomEggs + pData.KillEggs;
+                controller.PrintToChat($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["pickedEggNoPrize", total]}");
                 return;
             }
 
@@ -339,9 +341,9 @@ namespace HuntDownTheEggs
             Server.ExecuteCommand(PluginUtilities.ReplacePlayerParameters(randomPrize.Command, controller));
         }
 
-        public void TrySpawnDeathEgg(CCSPlayerController controller)
+        public void TrySpawnDeathEgg(CCSPlayerController controller, CCSPlayerController victim)
         {
-            if (controller == null || !controller.PlayerPawn.IsValid || controller.PlayerPawn.Value == null)
+            if (controller == null || !controller.PlayerPawn.IsValid || controller.PlayerPawn.Value == null || victim == null)
                 return;
 
             float chance = _plugin.Config.ModesSetup.ChanceToSpawn;
@@ -355,7 +357,7 @@ namespace HuntDownTheEggs
                     controller.PlayerPawn.Value.AbsOrigin.Z + _plugin.Config.EggSetup.EggModelHeight
                 );
 
-                SpawnEgg(position, "default", $"$kill_{controller.UserId}");
+                SpawnEgg(position, "default", $"$kill_{victim.UserId}");
             }
         }
 
@@ -566,6 +568,7 @@ namespace HuntDownTheEggs
 
                 _plugin.AddTimer(0.3f, () =>
                 {
+                    if (!entities.IsValid) return;
                     entities.Remove();
                     entities.AcceptInput("kill");
                 });

@@ -201,7 +201,9 @@ namespace HuntDownTheEggs
                 playerData.KillEggs,
                 totalEggs,
                 playerData.Eggs.Count,
-                playerData.Map]
+                playerData.Map,
+                playerData.RandomEggs
+                ]
             );
 
             controller.PrintToChat($"{myEggsMessage}");

@@ -410,9 +410,7 @@ namespace HuntDownTheEggs.Extensions
         public Vector Center => new(Handle + 12);
         public Vector Min => new(Handle + 36);
         public Vector Max => new(Handle + 48);
-
         public uint ID => unchecked((uint)Marshal.ReadInt32(Handle + 84));
-
         public byte BlockedTeam => Marshal.ReadByte(Handle + 92);
     }
 

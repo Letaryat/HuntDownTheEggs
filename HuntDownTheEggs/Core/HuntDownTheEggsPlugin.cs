@@ -10,7 +10,7 @@ namespace HuntDownTheEggs.Core
         public override string ModuleName => "Hunt Down The Eggs";
         public override string ModuleAuthor => "Letaryat & Mesharsky";
         public override string ModuleDescription => "https://github.com/Letaryat/ & https://github.com/Mesharsky/";
-        public override string ModuleVersion => "1.3";
+        public override string ModuleVersion => "1.3.3";
 
         // Managers
         public EggManager? EggManager { get; private set; }
