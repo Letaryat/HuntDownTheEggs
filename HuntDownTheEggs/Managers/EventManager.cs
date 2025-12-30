@@ -26,7 +26,7 @@ namespace HuntDownTheEggs
             // Register listeners
             _plugin.RegisterListener<Listeners.OnMapStart>(OnMapStart);
             _plugin.RegisterListener<Listeners.OnServerPrecacheResources>(OnServerPrecacheResources);
-            _plugin.RegisterListener<Listeners.CheckTransmit>(OnCheckTransmit);
+            //_plugin.RegisterListener<Listeners.CheckTransmit>(OnCheckTransmit);
 
             // Hook entity outputs
             _plugin.HookEntityOutput("trigger_multiple", "OnStartTouch", OnTriggerTouch, HookMode.Pre);
@@ -234,7 +234,11 @@ namespace HuntDownTheEggs
                 {
                     var killer = eggName.Split('_');
                     if (killer.Length < 2) return HookResult.Continue;
-                    if (!int.TryParse(killer[1], out int killerId) || player.UserId != killerId) return HookResult.Continue;
+                    if (!int.TryParse(killer[1], out int killerId) || player.UserId != killerId)
+                    {
+                        player.PrintToCenter($"{_plugin.Localizer["prefix"]}{_plugin.Localizer["onlyForKiller"]}");
+                        return HookResult.Continue;
+                    }
                 }
 
                 _plugin.PlayerManager.IncrementKillEggs(steamId);
@@ -262,8 +266,6 @@ namespace HuntDownTheEggs
 
             // If in placing mode, don't allow picking up eggs
             if (_plugin.EggManager.PlacingMode) return HookResult.Continue;
-
-
 
             // Parse egg ID
             string[] eggParts = eggEntity.Entity!.Name.Split("$");
@@ -294,8 +296,6 @@ namespace HuntDownTheEggs
                     _plugin.EggManager.RemoveEgg(eggId);
                 }
             }
-
-
 
             // Give prize to player
             _plugin.EggManager.GiveEggPrize(player);
@@ -335,6 +335,11 @@ namespace HuntDownTheEggs
             }
 
         }
+
+        // It is lagging as fuck when there are more than 8+ players on the server which has not the best hardware.
+        // Even not sure if it does work to be honest but I will leave it here as commented
+
+        /*
         private void OnCheckTransmit(CCheckTransmitInfoList infoList)
         {
             var allEggs = Utilities.FindAllEntitiesByDesignerName<CDynamicProp>("prop_dynamic");
@@ -407,6 +412,8 @@ namespace HuntDownTheEggs
                 _plugin.DebugLog($"[HDTE] [Checktransmit] error: {error}");
             }
         }
+        */
+
         private HookResult OnTakeDamage(DynamicHook hook)
         {
             if (!_plugin.Config.ModesSetup.ShootEggMode) return HookResult.Continue;
@@ -535,7 +542,6 @@ namespace HuntDownTheEggs
                 _plugin.EggManager.RemoveEntityOnShoot(dynamicProp, entities, player, 1);
 
             }
-
 
             return HookResult.Continue;
         }

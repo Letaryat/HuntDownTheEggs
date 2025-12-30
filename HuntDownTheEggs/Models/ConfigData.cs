@@ -37,7 +37,7 @@ namespace HuntDownTheEggs.Models
         [JsonPropertyName("HidePickedEggsForPlayer")]
         public bool HidePickedEggsPlayer { get; set; } = false;
 
-        [JsonPropertyName("ShowKillEggOnlyForKiller")]
+        [JsonPropertyName("KillEggOnlyForKiller")]
         public bool ShowKillEggOnlyForKiller { get; set; } = false;
 
 
