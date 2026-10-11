@@ -8,9 +8,9 @@ namespace HuntDownTheEggs.Core
     public class HuntDownTheEggsPlugin : BasePlugin, IPluginConfig<PluginConfig>
     {
         public override string ModuleName => "Hunt Down The Eggs";
-        public override string ModuleAuthor => "Letaryat & Mesharsky";
-        public override string ModuleDescription => "https://github.com/Letaryat/ & https://github.com/Mesharsky/";
-        public override string ModuleVersion => "1.3.3";
+        public override string ModuleAuthor => "Letaryat";
+        public override string ModuleDescription => "https://github.com/Letaryat/";
+        public override string ModuleVersion => "1.3.4";
 
         // Managers
         public EggManager? EggManager { get; private set; }
