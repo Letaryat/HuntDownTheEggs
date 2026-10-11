@@ -32,9 +32,31 @@ namespace HuntDownTheEggs.Extensions
             }
         }
 
-        public static readonly MemoryFunctionWithReturn<nint, bool> CSource2Server_IsValidNavMesh = new("48 8D 05 ?? ?? ?? ?? 48 83 38 00 0F 95 C0 C3");
+        public static readonly MemoryFunctionWithReturn<nint, bool> CSource2Server_IsValidNavMesh = new MemoryFunctionWithReturn<nint, bool>(GameData.GetSignature("CCSNavArea_IsValidNavMesh"));
 
         public static readonly nint NavMeshPtrAddress = GetNavMeshPtrAddress();
+
+        private static void DumpBytes(string label, nint addr, int len = 16)
+        {
+            try
+            {
+                byte[] b = new byte[len];
+                Marshal.Copy(addr, b, 0, len);
+                Console.WriteLine($"[NavMeshDiag] {label} @0x{addr:X}: {BitConverter.ToString(b)}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[NavMeshDiag] {label} @0x{addr:X}: unreadable ({ex.GetType().Name})");
+            }
+        }
+
+        public static void Diagnose()
+        {
+            nint h = CSource2Server_IsValidNavMesh.Handle;
+            DumpBytes("Handle", h);
+            DumpBytes("*Handle", Marshal.ReadIntPtr(h)); // jeśli Handle to wskaźnik na wskaźnik
+            DumpBytes("NavMeshPtrAddress", NavMeshPtrAddress);
+        }
 
         public static nint GetNavMeshPtrAddress()
         {
@@ -289,6 +311,18 @@ namespace HuntDownTheEggs.Extensions
             return distance < 3000.0f; // Adjust this distance as needed
         }
 
+
+        private static List<CBaseEntity> GetSpawnPoints()
+        {
+            var list = new List<CBaseEntity>();
+            foreach (var name in new[] { "info_player_terrorist", "info_player_counterterrorist", "info_player_start" })
+            {
+                list.AddRange(Utilities.FindAllEntitiesByDesignerName<CBaseEntity>(name));
+            }
+            return list;
+        }
+
+        /*
         private static List<SpawnPoint> GetSpawnPoints()
         {
             try
@@ -343,8 +377,10 @@ namespace HuntDownTheEggs.Extensions
                 return [];
             }
         }
+        */
 
         private static float DistanceTo(Vector a, Vector b) => MathF.Sqrt(MathF.Pow(a.X - b.X, 2) + MathF.Pow(a.Y - b.Y, 2) + MathF.Pow(a.Z - b.Z, 2));
+
 
         private static IEnumerable<T> GetVectorPtrElements<T>(NetworkedVector<T?> vector)
         {
