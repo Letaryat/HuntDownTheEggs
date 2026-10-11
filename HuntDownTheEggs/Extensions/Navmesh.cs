@@ -36,28 +36,6 @@ namespace HuntDownTheEggs.Extensions
 
         public static readonly nint NavMeshPtrAddress = GetNavMeshPtrAddress();
 
-        private static void DumpBytes(string label, nint addr, int len = 16)
-        {
-            try
-            {
-                byte[] b = new byte[len];
-                Marshal.Copy(addr, b, 0, len);
-                Console.WriteLine($"[NavMeshDiag] {label} @0x{addr:X}: {BitConverter.ToString(b)}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[NavMeshDiag] {label} @0x{addr:X}: unreadable ({ex.GetType().Name})");
-            }
-        }
-
-        public static void Diagnose()
-        {
-            nint h = CSource2Server_IsValidNavMesh.Handle;
-            DumpBytes("Handle", h);
-            DumpBytes("*Handle", Marshal.ReadIntPtr(h)); // jeśli Handle to wskaźnik na wskaźnik
-            DumpBytes("NavMeshPtrAddress", NavMeshPtrAddress);
-        }
-
         public static nint GetNavMeshPtrAddress()
         {
             nint functionAddress = Marshal.ReadIntPtr(CSource2Server_IsValidNavMesh.Handle);

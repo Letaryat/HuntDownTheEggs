@@ -74,9 +74,7 @@ namespace HuntDownTheEggs
             // If someone is using mp_match_end_restart 0 after map end and starting a new match on the same map it would not spawn eggs anymore.
             // So it deserialize json again:
             _plugin.EggManager!.CheckIfEggsAreThere();
-
-            NavMesh.Diagnose();
-
+            
             if (!_plugin.Config.ModesSetup.SpawnEggsOnWarmup)
             {
                 if (PluginUtilities.IfWarmup())
