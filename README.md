@@ -7,9 +7,14 @@
 [![poor-developer discord server](https://i.imgur.com/8L6KsUZ.png)](https://discord.gg/mEmdyqM3Um)
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/H2H8TK0L9)
 
-A simple Easter egg hunt plugin for Counter-Strike 2 servers using CounterStrikeSharp. <br>
-This plugin allows server owners to place custom easter eggs around the map (which are spawned on round start), drop them when a player is killed or spawn them randomly on the map. Players can collect these eggs, with all data stored in a MySQL database.<br>
-Additionally, server owners can configure the eggs to grant random rewards by executing custom commands when an egg is picked up. Rewards can be assigned different rarity levels, each with its own drop chance.<br>
+## [📌] Features
+- **Easter Egg Spawning** – Place custom eggs around the map, random spawn at the start of each round, drop them when players are killed, or spawn them randomly across the map.
+- **Egg Collection** – Allow players to find and collect eggs during gameplay.
+- **MySQL Database** – Store collected egg data in a database.
+- **Random Rewards** – Configure eggs to grant random rewards when collected by executing custom server commands.
+- **Reward Rarities** – Define different reward rarity levels, each with its own drop chance.
+- **Custom Egg Model** – Includes a basic Easter egg model for use on your server.
+- **Egg Collection** – Players can collect eggs by touching them or dealing damage to them.
 
 ## [📌] Dependiencies
 - [Metamod](https://www.sourcemm.net/)
