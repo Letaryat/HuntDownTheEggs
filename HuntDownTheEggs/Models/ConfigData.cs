@@ -8,16 +8,16 @@ namespace HuntDownTheEggs.Models
         public string EggRootFlag { get; set; } = "@egg/root";
 
         [JsonPropertyName("EggModel")]
-        public string EggModel { get; set; } = "models/chicken/chicken.vmdl";
+        public string EggModel { get; set; } = "models/huntdowntheeggs/pumpkin.vmdl";
 
         [JsonPropertyName("TriggerModel")]
-        public string TriggerModel { get; set; } = "models/chicken/chicken.vmdl";
+        public string TriggerModel { get; set; } = "models/huntdowntheeggs/pumpkin.vmdl";
 
         [JsonPropertyName("EggAnimation")]
-        public string EggAnimation { get; set; } = "challenge_coin_idle";
+        public string EggAnimation { get; set; } = "huntdowntheeggs_rotateAction";
 
         [JsonPropertyName("EggCollectAnimation")]
-        public string EggCollectAnimation { get; set; } = "challenge_coin_collect";
+        public string EggCollectAnimation { get; set; } = "huntdowntheEggs_collect";
 
         [JsonPropertyName("EggModelHeight")]
         public float EggModelHeight { get; set; } = 0;

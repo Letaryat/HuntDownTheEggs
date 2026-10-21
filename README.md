@@ -39,8 +39,8 @@ If you have any more problems or would like to know more, [please visit wiki.](h
 - [oqyh / GoldKingZ](https://github.com/oqyh/cs2-Prop-Health-GoldKingZ) - OnTakeDamage function for props,
 - CounterStrikeSharp Discord,
 
-### [💥] Model
-There is a basic easter egg model that you can use in your addons by using MultiAddonManager.
+## [💥] Model
+[HuntDownTheEggs plugin now also comes in with few models depending on holiday.](https://github.com/letiPoorPlugins/HuntDownTheEggs_Models)  
 
 ## [🚨] 
 Plugin is written by me. That means it might be poorly written and have some issues. Sometimes I have no idea what am I doing but when tested it works.
