@@ -20,10 +20,10 @@
 > If you notice any problems with plugin please create issue on github. If you have any questions, please ask me on discord server.
 
 ## [📌] Dependiencies
-- [CounterStrikeSharp](https://swiftlys2.net/)
+- [CounterStrikeSharp](https://github.com/roflmuffin/counterstrikesharp)
 
 ## [🛠️] Base Setup
-- Download latest [release](https://github.com/letiPoorPlugins/HuntDownTheEggs_SW/releases)
+- Download latest [release](https://github.com/Letaryat/HuntDownTheEggs/releases)
 - Drag files to /addons/counterstrikesharp/,
 - Restart your server,
 - Config file should be created in configs/plugins/HuntDownTheEggs,

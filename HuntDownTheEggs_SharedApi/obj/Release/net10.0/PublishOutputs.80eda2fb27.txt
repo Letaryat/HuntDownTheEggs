@@ -1,3 +1,0 @@
-/home/szymon/Pobrane/HuntDownTheEggs_CSS/HuntDownTheEggs_CSS.Contract/bin/Release/net10.0/publish/HuntDownTheEggs_CSS.Contract.dll
-/home/szymon/Pobrane/HuntDownTheEggs_CSS/HuntDownTheEggs_CSS.Contract/bin/Release/net10.0/publish/HuntDownTheEggs_CSS.Contract.pdb
-/home/szymon/Pobrane/HuntDownTheEggs_CSS/HuntDownTheEggs_CSS.Contract/bin/Release/net10.0/publish/HuntDownTheEggs_CSS.Contract.deps.json
