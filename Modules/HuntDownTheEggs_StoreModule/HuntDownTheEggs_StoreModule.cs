@@ -23,9 +23,6 @@ public sealed class HuntDownTheEggs_StorePoints : BasePlugin
     private ShopPointsConfig _config = new();
     private readonly List<Guid> _registrations = new();
 
-    // MUSI odpowiadać identyfikatorowi capability z głównego pluginu.
-    private const string EggApiCapabilityName = "HuntDownTheEggs.Api.v1";
-
     public override void Load(bool hotReload)
     {
         LoadConfig();
@@ -34,15 +31,7 @@ public sealed class HuntDownTheEggs_StorePoints : BasePlugin
     public override void OnAllPluginsLoaded(bool hotReload)
     {
         _storeApi = IStoreApi.Capability.Get();
-
-        // Jeśli Twój interfejs IHuntDownTheEggsApi udostępnia
-        // statyczne Capability, możesz zamiast tego użyć:
-        // _eggApi = IHuntDownTheEggsApi.Capability.Get();
-
-        var capability = new PluginCapability<IHuntDownTheEggsApi>(
-            EggApiCapabilityName);
-
-        _eggApi = capability.Get();
+        _eggApi = HuntDownTheEggsCapability.Api.Get();
 
         if (!_config.Enabled)
         {
@@ -61,7 +50,7 @@ public sealed class HuntDownTheEggs_StorePoints : BasePlugin
         if (_eggApi is null)
         {
             Logger.LogError(
-                "HuntDownTheEggs API not found. Check the capability name.");
+                "HuntDownTheEggs API not found. Is HuntDownTheEggs_CSS installed?");
             return;
         }
 
@@ -156,7 +145,21 @@ public sealed class HuntDownTheEggs_StorePoints : BasePlugin
 
     private void LoadConfig()
     {
-        var configPath = Path.Combine(ModuleDirectory, "ShopPoints.json");
+        var configDirectory = Path.Combine(
+            Server.GameDirectory,
+            "csgo",
+            "addons",
+            "counterstrikesharp",
+            "configs",
+            "plugins",
+            "HuntDownTheEggs",
+            "modules");
+
+        Directory.CreateDirectory(configDirectory);
+
+        var configPath = Path.Combine(
+            configDirectory,
+            "ShopPoints.json");
 
         try
         {
@@ -172,7 +175,11 @@ public sealed class HuntDownTheEggs_StorePoints : BasePlugin
                     });
 
                 File.WriteAllText(configPath, json);
-                Logger.LogInformation("Created default config: {Path}", configPath);
+
+                Logger.LogInformation(
+                    "Created default config: {Path}",
+                    configPath);
+
                 return;
             }
 
@@ -184,10 +191,18 @@ public sealed class HuntDownTheEggs_StorePoints : BasePlugin
                 {
                     PropertyNameCaseInsensitive = true
                 }) ?? new ShopPointsConfig();
+
+            Logger.LogInformation(
+                "Loaded config: {Path}",
+                configPath);
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Failed to load config: {Path}", configPath);
+            Logger.LogError(
+                ex,
+                "Failed to load config: {Path}",
+                configPath);
+
             _config = new ShopPointsConfig();
         }
     }
