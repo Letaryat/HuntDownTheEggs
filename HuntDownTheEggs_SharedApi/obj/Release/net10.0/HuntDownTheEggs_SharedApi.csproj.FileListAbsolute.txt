@@ -1,0 +1,13 @@
+/home/szymon/GithubApps/HuntDownTheEggs/HuntDownTheEggs_SharedApi/bin/Release/net10.0/HuntDownTheEggs_SharedApi.deps.json
+/home/szymon/GithubApps/HuntDownTheEggs/HuntDownTheEggs_SharedApi/bin/Release/net10.0/HuntDownTheEggs_SharedApi.dll
+/home/szymon/GithubApps/HuntDownTheEggs/HuntDownTheEggs_SharedApi/bin/Release/net10.0/HuntDownTheEggs_SharedApi.pdb
+/home/szymon/GithubApps/HuntDownTheEggs/HuntDownTheEggs_SharedApi/obj/Release/net10.0/HuntDownTheEggs_SharedApi.csproj.AssemblyReference.cache
+/home/szymon/GithubApps/HuntDownTheEggs/HuntDownTheEggs_SharedApi/obj/Release/net10.0/HuntDownTheEggs_SharedApi.GeneratedMSBuildEditorConfig.editorconfig
+/home/szymon/GithubApps/HuntDownTheEggs/HuntDownTheEggs_SharedApi/obj/Release/net10.0/HuntDownTheEggs_SharedApi.AssemblyInfoInputs.cache
+/home/szymon/GithubApps/HuntDownTheEggs/HuntDownTheEggs_SharedApi/obj/Release/net10.0/HuntDownTheEggs_SharedApi.AssemblyInfo.cs
+/home/szymon/GithubApps/HuntDownTheEggs/HuntDownTheEggs_SharedApi/obj/Release/net10.0/HuntDownTheEggs_SharedApi.csproj.CoreCompileInputs.cache
+/home/szymon/GithubApps/HuntDownTheEggs/HuntDownTheEggs_SharedApi/obj/Release/net10.0/HuntDownTheEggs_SharedApi.sourcelink.json
+/home/szymon/GithubApps/HuntDownTheEggs/HuntDownTheEggs_SharedApi/obj/Release/net10.0/HuntDownTheEggs_SharedApi.dll
+/home/szymon/GithubApps/HuntDownTheEggs/HuntDownTheEggs_SharedApi/obj/Release/net10.0/refint/HuntDownTheEggs_SharedApi.dll
+/home/szymon/GithubApps/HuntDownTheEggs/HuntDownTheEggs_SharedApi/obj/Release/net10.0/HuntDownTheEggs_SharedApi.pdb
+/home/szymon/GithubApps/HuntDownTheEggs/HuntDownTheEggs_SharedApi/obj/Release/net10.0/ref/HuntDownTheEggs_SharedApi.dll
