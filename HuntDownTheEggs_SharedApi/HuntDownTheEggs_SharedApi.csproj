@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>HuntDownTheEggs.Api</RootNamespace>
+    <AssemblyName>HuntDownTheEggs_SharedApi</AssemblyName>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Contract needs CSS only for PluginCapability<T>; the runtime copy is provided by CounterStrikeSharp itself. -->
+    <PackageReference Include="CounterStrikeSharp.API" Version="*" PrivateAssets="all" ExcludeAssets="runtime" />
+  </ItemGroup>
+
+</Project>

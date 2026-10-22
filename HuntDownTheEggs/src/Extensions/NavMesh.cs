@@ -11,7 +11,7 @@ using System.Collections;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using CounterStrikeSharp.API.Modules.Utils;
-using HuntDownTheEggs.Core;
+using HuntDownTheEggs;
 
 namespace HuntDownTheEggs.Extensions
 {

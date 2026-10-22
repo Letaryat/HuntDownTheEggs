@@ -1,3 +1,4 @@
 .vs
-HuntDownTheEggs/bin
-HuntDownTheEggs/obj
+obj
+bin
+Modules/libs
