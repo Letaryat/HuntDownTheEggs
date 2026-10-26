@@ -58,6 +58,7 @@ public sealed class ModesSetup
     public bool SpawnPlacedEggsOnce { get; set; } = false;
     public bool SpawnRandomEggs { get; set; } = false;
     public bool SpawnRandomEggsOnWarmup { get; set; } = false;
+    public int MinPlayersToSpawnEggs {get; set; } = 1;
     public int MinPlayersToSpawnRandomEggs { get; set; } = 1;
     public int NumberOfRandomEggs { get; set; } = 20;
     public bool SpawnRandomEggsByPercentageOfPlayers { get; set; } = true;

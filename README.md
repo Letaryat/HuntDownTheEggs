@@ -24,7 +24,8 @@
 
 ## [🛠️] Base Setup
 - Download latest [release](https://github.com/Letaryat/HuntDownTheEggs/releases)
-- Drag files to /addons/counterstrikesharp/,
+- Drag files from base_plugin to /addons/counterstrikesharp/,
+- Upload modules to /addons/counterstrikesharp/plugins if you want,
 - Restart your server,
 - Config file should be created in configs/plugins/HuntDownTheEggs,
 - Configure to your liking,
@@ -96,6 +97,7 @@
     "SpawnPlacedEggsOnce": false, # Requires RemoveOnFind: true; prevents collected placed eggs from spawning again during the same match,
     "SpawnRandomEggs": true, # Enable random egg spawning using the map's NavMesh,
     "SpawnRandomEggsOnWarmup": true, # Allow random eggs to spawn during warmup,
+    "MinPlayersToSpawnEggs": 1, # Minimum number of online players required to spawn eggs,
     "MinPlayersToSpawnRandomEggs": 1, # Minimum number of online players required to spawn random eggs,
     "NumberOfRandomEggs": 50, # Number of random eggs to spawn each round,
     "SpawnRandomEggsByPercentageOfPlayers": false # Scale the number of random eggs according to the number of online players

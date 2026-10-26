@@ -73,6 +73,11 @@ public sealed class Helpers(HuntDownTheEggsPlugin plugin)
         return rules?.WarmupPeriod ?? false;
     }
 
+    public float GetNumPlayers()
+    {
+        return Utilities.GetPlayers().Where(p => p != null && p.IsValid).ToList().Count(p => !p.IsBot && !p.IsHLTV);
+    }
+
     public float PlayerPercentage()
     {
         var all = Utilities.GetPlayers().Where(p => p != null && p.IsValid).ToList();
