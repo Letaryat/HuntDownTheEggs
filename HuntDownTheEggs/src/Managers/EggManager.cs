@@ -97,6 +97,12 @@ public sealed class EggManager(HuntDownTheEggsPlugin plugin)
 
         if (!_plugin.AllowToSpawnEggs) return;
 
+        if (_plugin.Helper.GetNumPlayers() < cfg.MinPlayersToSpawnEggs)
+        {
+            _plugin.DebugLog($"Not enough players to spawn eggs. Current: {_plugin.Helper.GetNumPlayers()}, Required: {cfg.MinPlayersToSpawnEggs}");
+            return;
+        }
+
         foreach (var egg in _eggs)
             SpawnEgg(new Vector(egg.X, egg.Y, egg.Z), EggKind.Placed, egg.ModelColor, egg.Id);
 

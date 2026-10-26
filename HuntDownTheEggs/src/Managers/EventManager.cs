@@ -25,22 +25,14 @@ public sealed class EventManager(HuntDownTheEggsPlugin plugin)
 
         _plugin.HookEntityOutput("trigger_multiple", "OnStartTouch", OnTriggerTouch, HookMode.Pre);
         _plugin.RegisterListener<Listeners.OnEntityTakeDamagePre>(OnTakeDamage);
-        // Pre-hook: eggs have their own HP, so the engine's damage handling is skipped for them (see OnTakeDamage)
-        //VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(OnTakeDamage, HookMode.Pre);
     }
-
-
-
-    public void DeregisterEvents()
-    {
-        //VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Unhook(OnTakeDamage, HookMode.Pre);
-    }
-
-    // ---------- game events ----------
 
     private HookResult OnPlayerDeath(EventPlayerDeath e, GameEventInfo info)
     {
         if (!_plugin.Config.ModesSetup.DeathMode) return HookResult.Continue;
+        if(!_plugin.Config.ModesSetup.SpawnEggsOnWarmup && _plugin.Helper.IsWarmup()) return HookResult.Continue;
+
+        if (_plugin.Helper.GetNumPlayers() < _plugin.Config.ModesSetup.MinPlayersToSpawnEggs) return HookResult.Continue;
 
         var victim = e.Userid;
         var attacker = e.Attacker;

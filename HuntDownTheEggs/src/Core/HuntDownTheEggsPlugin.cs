@@ -12,7 +12,7 @@ public sealed class HuntDownTheEggsPlugin : BasePlugin, IPluginConfig<PluginConf
     public override string ModuleName => "Hunt Down The Eggs";
     public override string ModuleAuthor => "Letaryat";
     public override string ModuleDescription => "Spawn collectables that players gather.";
-    public override string ModuleVersion => "1.4.0";
+    public override string ModuleVersion => "1.4.1";
 
     public PluginConfig Config { get; set; } = new();
 
@@ -63,8 +63,6 @@ public sealed class HuntDownTheEggsPlugin : BasePlugin, IPluginConfig<PluginConf
 
     public override void Unload(bool hotReload)
     {
-        EventManager.DeregisterEvents();
-
         try { Players.SaveAllBlocking(); }
         catch (Exception ex) { Logger.LogError(ex, "HuntDownTheEggs: error while saving players on unload"); }
 
